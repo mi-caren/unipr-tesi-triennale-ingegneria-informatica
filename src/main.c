@@ -10,12 +10,13 @@ int main(void) {
     // enable GPIOB clock
     RCC->AHB2ENR |= ( 0b1 << 1 );
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
+    systick_init_ms();
 
     while (1) {
         gpio_write(GPIOB, GPIO_PIN_15, HIGH);
-        spin(999999);
+        delay(1000);
         gpio_write(GPIOB, GPIO_PIN_15, LOW);
-        spin(999999);
+        delay(1000);
     }
 
     return 0;
@@ -23,11 +24,24 @@ int main(void) {
 
 
 
-
 void spin(volatile uint32_t count) {
 	while (count--) (void) 0;
 }
 
+void systick_init_ms() {
+    SYSTICK->VAL = 0;
+    SYSTICK->LOAD = 4000000 / 1000;
+    SYSTICK->CTRL |= 0b111;
+}
+
+void systick_handler(void) {
+    systick_ovf++;
+}
+
+void delay(unsigned int ms) {
+    uint32_t end_ms = systick_ovf + ms;
+    while (systick_ovf < end_ms) (void) 0;
+}
 
 void _reset(void) {
 	extern unsigned int _data_start, _data_end, _data_loadaddr, _bss_start, _bss_end;
