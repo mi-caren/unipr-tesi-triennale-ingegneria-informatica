@@ -36,4 +36,6 @@ void systick_init_ms();
 
 void delay(unsigned int ms);
 
+int int_to_string(char *buf, int32_t n);
+
 #endif
