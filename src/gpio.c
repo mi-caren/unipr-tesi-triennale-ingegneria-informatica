@@ -17,6 +17,20 @@ int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode) {
     return 0;
 }
 
+int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
+    if (pin > 15) {
+        return -1;
+    }
+    if (af > 15) {
+        return -2;
+    }
+
+    gpio->AFR[ pin / 8 ] &= ~( 0b1111 << ( ( pin % 8 ) * 4 ) );
+    gpio->AFR[ pin / 8 ] |= ( af << ( ( pin % 8 ) * 4 ) );
+
+    return 0;
+}
+
 int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val) {
     if (pin > 15) {
         return -1;

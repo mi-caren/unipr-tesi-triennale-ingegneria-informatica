@@ -2,6 +2,12 @@
 #define MAIN_H
 
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "gpio.h"
+#include "rcc.h"
+#include "uart.h"
+#include "rcc.h"
 
 // address in memory where systick registers are mapped
 #define SYSTICK_REG_MEM_ADDR    0xe000e010
@@ -9,7 +15,7 @@
 #define SYSTICK                 ( ( struct systick * ) SYSTICK_REG_MEM_ADDR )
 
 // keeps track of the number of times systick reacked the end of count
-volatile uint32_t systick_ovf;
+extern volatile uint32_t systick_ovf;
 
 struct systick {
 	volatile uint32_t CTRL;
@@ -31,12 +37,7 @@ extern void _estack(void);
 void systick_handler(void);
 
 // vector table. 16 cortex-m4 specific interrupts + 62 stm32wl55 interrupts
-__attribute__((section(".vectors"))) void (*tab[16 + 62]) (void) = {
-	_estack,
-	_reset,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	systick_handler
-};
+extern void (*tab[16 + 62]) (void);
 
 // perform a NOP for `cout` times
 void spin(volatile uint32_t count);

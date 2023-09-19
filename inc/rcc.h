@@ -49,4 +49,20 @@ struct rcc {
 };
 
 
+enum {
+    // AHB2ENR bits
+    RCC_AHB2ENR_BIT_GPIOAEN         = 1 << 0,
+    RCC_AHB2ENR_BIT_GPIOBEN         = 1 << 1,
+    RCC_AHB2ENR_BIT_GPIOCEN         = 1 << 2,
+    RCC_AHB2ENR_BIT_GPIOHEN         = 1 << 7,
+
+    // APB1ENR2 bits
+    RCC_APB1ENR2_BIT_LPUART1EN      = 1 << 0,
+    RCC_APB1ENR2_BIT_LPTIM2EN       = 1 << 5,
+    RCC_APB1ENR2_BIT_LPTIM3EN       = 1 << 6
+};
+
+void rcc_gpio_ck_enable(uint32_t bits);
+void rcc_lp_peripheral_ck_enable(uint32_t bits);
+
 #endif

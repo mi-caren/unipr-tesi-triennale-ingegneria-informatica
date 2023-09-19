@@ -31,9 +31,8 @@ struct gpio {
     volatile uint32_t LCKR;
 
     // alternate function registers
-    volatile uint32_t AFRH;
-    volatile uint32_t AFRL;
-
+    volatile uint32_t AFR[2];
+    volatile uint32_t BRR;
 };
 
 enum {
@@ -41,6 +40,24 @@ enum {
     GPIO_MODE_OUTPUT,
     GPIO_MODE_ALTERNATE_FUNCTION,
     GPIO_MODE_ANALOG
+};
+
+enum {
+    // PA2 alternate functions
+    GPIO_PA2_AF_LSCO                = 0,
+    GPIO_PA2_AF_TIM2_CH3            = 1,
+    GPIO_PA2_AF_USART2_TX           = 7,
+    GPIO_PA2_AF_LPUART1_TX          = 8,
+    GPIO_PA2_AF_COMP2_OUT           = 12,
+    GPIO_PA2_AF_DEBUG_PWR_LDORDY    = 13,
+    GPIO_PA2_AF_CM4_EVENTOUT        = 15,
+
+    // PA3 alternate functions
+    GPIO_PA3_AF_TIM2_CH4            = 1,
+    GPIO_PA3_AF_I2S2_MCK            = 5,
+    GPIO_PA3_AF_USART2_RX           = 7,
+    GPIO_PA3_AF_LPUART1_RX          = 8,
+    GPIO_PA3_AF_CM4_EVENTOUT        = 15
 };
 
 enum {
@@ -64,6 +81,8 @@ enum {
 
 
 int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode);
+
+int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af);
 
 int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val);
 

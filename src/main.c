@@ -1,19 +1,28 @@
 #include <stdint.h>
 
 #include "main.h"
-#include "gpio.h"
-#include "rcc.h"
 
+volatile uint32_t systick_ovf;
 
+__attribute__((section(".vectors"))) void (*tab[16 + 62]) (void) = {
+	_estack,
+	_reset,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	systick_handler
+};
 
 int main(void) {
-    // enable GPIOB clock
-    RCC->AHB2ENR |= ( 0b1 << 1 );
+    rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
+
+    lpuart_init(115200);
+
+    // init SysTick
     systick_init_ms();
 
     while (1) {
         gpio_write(GPIOB, GPIO_PIN_15, HIGH);
+        lpuart_write_buf(LPUART1, "hi\n", 3);
         delay(1000);
         gpio_write(GPIOB, GPIO_PIN_15, LOW);
         delay(1000);
