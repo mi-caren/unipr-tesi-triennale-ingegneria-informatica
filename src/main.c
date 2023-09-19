@@ -6,7 +6,7 @@ volatile uint32_t systick_ovf;
 
 
 int main(void) {
-    char str[20];
+    char str[MAX_NUMBER_OF_DIGITS];
     char str_len;
     rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
@@ -19,7 +19,7 @@ int main(void) {
     while (1) {
         gpio_write(GPIOB, GPIO_PIN_15, HIGH);
 
-        str_len = int_to_string(str, -123);
+        str_len = int_to_string(-123, str);
         lpuart_write_buf(LPUART1, str, str_len);
         lpuart_write_byte(LPUART1, '\n');
 
@@ -52,35 +52,28 @@ void delay(unsigned int ms) {
     while (systick_ovf < end_ms) (void) 0;
 }
 
-// The buffer has to be at least of 10 bytes
-int int_to_string(char *buf, int32_t n) {
-    uint8_t digits[10];
-    uint8_t digits_count = 0;
-    uint8_t i = 0;
-    uint32_t quotient;
+int int_to_string(int n, char *buf) {
+    uint8_t digits[MAX_NUMBER_OF_DIGITS];
+    unsigned int digits_count = 0;
+    unsigned int buf_idx = 0;
+    unsigned int quotient = n;
     uint8_t rest;
 
     if (n < 0) {
-        buf[i++] = '-';
+        buf[buf_idx++] = '-';
         n = n * -1;
     }
-
-    quotient = n;
 
     while (quotient != 0) {
         quotient = n / 10;
         rest = n % 10;
-
         digits[digits_count++] = rest;
-
         n = quotient;
     }
 
     while (digits_count != 0) {
-        buf[i++] = digits[--digits_count] + 0x30;
+        buf[buf_idx++] = digits[--digits_count] + 0x30;
     }
 
-    // buf[i++] = '\n';
-
-    return i;
+    return buf_idx;
 }

@@ -10,9 +10,11 @@
 #include "rcc.h"
 
 // address in memory where systick registers are mapped
-#define SYSTICK_REG_MEM_ADDR    0xe000e010
+#define SYSTICK_REG_MEM_ADDR    	0xe000e010
 
-#define SYSTICK                 ( ( struct systick * ) SYSTICK_REG_MEM_ADDR )
+#define SYSTICK                 	( ( struct systick * ) SYSTICK_REG_MEM_ADDR )
+
+#define MAX_NUMBER_OF_DIGITS		( 11 )
 
 // keeps track of the number of times systick reacked the end of count
 extern volatile uint32_t systick_ovf;
@@ -36,6 +38,6 @@ void systick_init_ms();
 
 void delay(unsigned int ms);
 
-int int_to_string(char *buf, int32_t n);
+int int_to_string(int n, char *buf);
 
 #endif
