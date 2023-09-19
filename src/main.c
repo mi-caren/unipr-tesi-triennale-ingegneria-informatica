@@ -6,8 +6,6 @@ volatile uint32_t systick_ovf;
 
 
 int main(void) {
-    char str[MAX_NUMBER_OF_DIGITS];
-    char str_len;
     rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
@@ -16,12 +14,11 @@ int main(void) {
     // init SysTick
     systick_init_ms();
 
+    int loop_count = 0;
     while (1) {
         gpio_write(GPIOB, GPIO_PIN_15, HIGH);
 
-        str_len = int_to_string(-123, str);
-        lpuart_write_buf(LPUART1, str, str_len);
-        lpuart_write_byte(LPUART1, '\n');
+        app_log("App made %d loops\n", (int[]){ loop_count++ });
 
         delay(1000);
         gpio_write(GPIOB, GPIO_PIN_15, LOW);
@@ -52,7 +49,8 @@ void delay(unsigned int ms) {
     while (systick_ovf < end_ms) (void) 0;
 }
 
-int int_to_string(int n, char *buf) {
+char* int_to_string(int n) {
+    static char buf[MAX_NUMBER_OF_DIGITS + 1]; // +1 for null char (0)
     uint8_t digits[MAX_NUMBER_OF_DIGITS];
     unsigned int digits_count = 0;
     unsigned int buf_idx = 0;
@@ -64,16 +62,31 @@ int int_to_string(int n, char *buf) {
         n = n * -1;
     }
 
-    while (quotient != 0) {
+    do {
         quotient = n / 10;
         rest = n % 10;
         digits[digits_count++] = rest;
         n = quotient;
-    }
+    } while (quotient != 0);
 
     while (digits_count != 0) {
         buf[buf_idx++] = digits[--digits_count] + 0x30;
     }
+    buf[buf_idx] = 0;
 
-    return buf_idx;
+    return buf;
+}
+
+void app_log(char *buf, int *buf_values) {
+    unsigned int buf_values_idx = 0;
+    while (*buf != 0) {
+        if (*buf == '%' && *(buf + 1) == 'd') {
+            char *value_buf = int_to_string(buf_values[buf_values_idx++]);
+            app_log(value_buf, (int[]){});
+            buf++;
+        } else {
+            lpuart_write_byte(LPUART1, *buf);
+        }
+        buf++;
+    }
 }

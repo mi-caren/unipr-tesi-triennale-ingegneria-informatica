@@ -38,6 +38,8 @@ void systick_init_ms();
 
 void delay(unsigned int ms);
 
-int int_to_string(int n, char *buf);
+char* int_to_string(int n);
+
+void app_log(char *buf, int *buf_values);
 
 #endif

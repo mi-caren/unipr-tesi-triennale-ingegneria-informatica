@@ -15,7 +15,6 @@ void lpuart_init(uint32_t baud_rate) {
 
 void lpuart_write_byte(struct lpuart *lpuart, uint8_t byte) {
     lpuart->TDR = byte;
-
     while ((lpuart->ISR & LPUART_ISR_BIT_TXE) == 0) {
         spin(1);
     }
