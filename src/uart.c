@@ -20,8 +20,8 @@ void lpuart_write_byte(struct lpuart *lpuart, uint8_t byte) {
     }
 }
 
-void lpuart_write_buf(struct lpuart *lpuart, char *buf, size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        lpuart_write_byte(lpuart, buf[i]);
+void lpuart_write_buf(struct lpuart *lpuart, char *buf) {
+    while (*buf != 0) {
+        lpuart_write_byte(lpuart, *(buf++));
     }
 }

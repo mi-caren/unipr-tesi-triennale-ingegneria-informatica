@@ -18,7 +18,7 @@ int main(void) {
     while (1) {
         gpio_write(GPIOB, GPIO_PIN_15, HIGH);
 
-        app_log("App made %d loops\n", (int[]){ loop_count++ });
+        app_log("App made %d loops", (int[]){ loop_count++ });
 
         delay(1000);
         gpio_write(GPIOB, GPIO_PIN_15, LOW);
@@ -38,6 +38,7 @@ void systick_init_ms() {
     SYSTICK->VAL = 0;
     SYSTICK->LOAD = 4000000 / 1000;
     SYSTICK->CTRL |= 0b111;
+    systick_ovf = 0;
 }
 
 void systick_handler(void) {
@@ -82,7 +83,7 @@ void app_log(char *buf, int *buf_values) {
     while (*buf != 0) {
         if (*buf == '%' && *(buf + 1) == 'd') {
             char *value_buf = int_to_string(buf_values[buf_values_idx++]);
-            app_log(value_buf, (int[]){});
+            lpuart_write_buf(LPUART1, value_buf);
             buf++;
         } else {
             lpuart_write_byte(LPUART1, *buf);

@@ -66,7 +66,7 @@ enum {
 
 void lpuart_write_byte(struct lpuart *lpuart, uint8_t byte);
 
-void lpuart_write_buf(struct lpuart *lpuart, char *buf, size_t len);
+void lpuart_write_buf(struct lpuart *lpuart, char *buf);
 
 void lpuart_init(uint32_t baud_rate);
 

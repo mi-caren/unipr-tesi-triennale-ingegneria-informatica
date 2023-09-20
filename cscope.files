@@ -1,0 +1,9 @@
+./src/uart.c
+./src/startup.c
+./src/gpio.c
+./src/main.c
+./src/rcc.c
+./inc/main.h
+./inc/uart.h
+./inc/gpio.h
+./inc/rcc.h
