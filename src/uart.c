@@ -12,14 +12,17 @@ void uart_init(volatile uint32_t *uart, uint32_t baud_rate) {
         gpio_set_af(GPIOA, GPIO_PIN_2, GPIO_PA2_AF_LPUART1_TX);
         gpio_set_mode(GPIOA, GPIO_PIN_3, GPIO_MODE_ALTERNATE_FUNCTION);
         gpio_set_af(GPIOA, GPIO_PIN_3, GPIO_PA3_AF_LPUART1_RX);
-        *(uart + UART_BRR) = ( ( 256 * LPUART_KER_CK_PRES ) ) / baud_rate;
-        *(uart + UART_CR1) |= LPUART_CR1_BIT_UE | LPUART_CR1_BIT_TE;
+        // *(uart + UART_BRR) = ( ( 256 * LPUART_KER_CK_PRES ) ) / baud_rate;
+        MEM_OFFSET(uart, UART_BRR) = ( ( 256 * LPUART_KER_CK_PRES ) ) / baud_rate;
+        // *(uart + UART_CR1) |= LPUART_CR1_BIT_UE | LPUART_CR1_BIT_TE;
+        MEM_OFFSET(uart, UART_CR1) |= LPUART_CR1_BIT_UE | LPUART_CR1_BIT_TE;
     }
 }
 
 void uart_write_byte(volatile uint32_t *uart, uint8_t byte) {
-    *(uart + UART_TDR) = byte;
-    while ((*(uart + UART_ISR) & LPUART_ISR_BIT_TXE) == 0) {
+    // *(uart + UART_TDR) = byte;
+    MEM_OFFSET(uart, UART_TDR) = byte;
+    while ((MEM_OFFSET(uart, UART_ISR) & LPUART_ISR_BIT_TXE) == 0) {
         spin(1);
     }
 }
