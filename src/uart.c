@@ -4,7 +4,7 @@
 #include "rcc.h"
 
 
-void uart_init(volatile uint32_t *uart, uint32_t baud_rate) {
+void uart_init(int uart, uint32_t baud_rate) {
     if (uart == LPUART1) {
         rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOAEN);
         rcc_lp_peripheral_ck_enable(RCC_APB1ENR2_BIT_LPUART1EN);
@@ -19,7 +19,7 @@ void uart_init(volatile uint32_t *uart, uint32_t baud_rate) {
     }
 }
 
-void uart_write_byte(volatile uint32_t *uart, uint8_t byte) {
+void uart_write_byte(int uart, uint8_t byte) {
     // *(uart + UART_TDR) = byte;
     MEM_OFFSET(uart, UART_TDR) = byte;
     while ((MEM_OFFSET(uart, UART_ISR) & LPUART_ISR_BIT_TXE) == 0) {
@@ -27,7 +27,7 @@ void uart_write_byte(volatile uint32_t *uart, uint8_t byte) {
     }
 }
 
-void uart_write_buf(volatile uint32_t *uart, char *buf) {
+void uart_write_buf(int uart, char *buf) {
     while (*buf != 0) {
         uart_write_byte(uart, *(buf++));
     }

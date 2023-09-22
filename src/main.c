@@ -65,4 +65,5 @@ void app_log(char *buf, int *buf_values) {
         }
         buf++;
     }
+    uart_write_byte(LPUART1, '\n');
 }
