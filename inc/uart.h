@@ -1,32 +1,34 @@
 #ifndef UART_H
 #define UART_H
 
-// #include "main.h"
 #include <stdint.h>
 #include <stdlib.h>
 
-#define LPUART1_MEM_ADDR        0x40008000
+#define USART2                  ( ( volatile uint32_t * ) 0x40004400 )
+#define LPUART1                 ( ( volatile uint32_t * ) 0x40008000 )
+#define USART1                  ( ( volatile uint32_t * ) 0x40013800 )
 
-#define LPUART1                 ( ( struct lpuart * ) LPUART1_MEM_ADDR )
 
 #define LPUART_KER_CK_PRES          ( 4000000 ) // 4Mhz
 
-struct lpuart {
-    volatile uint32_t CR1;
-    volatile uint32_t CR2;
-    volatile uint32_t CR3;
-    volatile uint32_t BRR;
-    volatile uint32_t _RESERVED[2];
-    volatile uint32_t RQR;
-    volatile uint32_t ISR;
-    volatile uint32_t ICR;
-    volatile uint32_t RDR;
-    volatile uint32_t TDR;
-    volatile uint32_t PRESC;
+
+enum UartRegisters {
+    UART_CR1    = 0x00,
+    UART_CR2    = 0x04,
+    UART_CR3    = 0x08,
+    UART_BRR    = 0x0c,
+    UART_GTPR   = 0x10, // USART1,2 only
+    UART_RTOR   = 0x14, // USART1,2 only
+    UART_RQR    = 0x18,
+    UART_ISR    = 0x1c,
+    UART_ICR    = 0x20,
+    UART_RDR    = 0x24,
+    UART_TDR    = 0x28,
+    UART_PRESC  = 0x2c,
 };
 
-enum {
-    // CR1 bits
+enum UartRegistersBits {
+    // CR1 bits (FIFO disabled)
     LPUART_CR1_BIT_UE           = 1 << 0,
     LPUART_CR1_BIT_UESM         = 1 << 1,
     LPUART_CR1_BIT_RE           = 1 << 2,
@@ -41,7 +43,15 @@ enum {
     LPUART_CR1_BIT_WAKE         = 1 << 11,
     LPUART_CR1_BIT_MME          = 1 << 13,
     LPUART_CR1_BIT_CMIE         = 1 << 14,
+
+    UART_CR1_BIT_OVER8          = 1 << 15,
+    UART_CR1_BIT_RTOIE          = 1 << 26,
+    UART_CR1_BIT_EOBIE          = 1 << 27,
+
     LPUART_CR1_BIT_FIFOEN       = 1 << 29,
+
+    UART_CR1_BIT_TXFEIE         = 1 << 30,
+    UART_CR1_BIT_RXFFIE         = 1 << 31,
 
     // ISR bits
     LPUART_ISR_BIT_PE           = 1 << 0,
@@ -63,11 +73,8 @@ enum {
     LPUART_ISR_BIT_REACK        = 1 << 22,
 };
 
-
-void lpuart_write_byte(struct lpuart *lpuart, uint8_t byte);
-
-void lpuart_write_buf(struct lpuart *lpuart, char *buf);
-
-void lpuart_init(uint32_t baud_rate);
+void uart_init(volatile uint32_t *uart, uint32_t baud_rate);
+void uart_write_byte(volatile uint32_t *uart, uint8_t byte);
+void uart_write_buf(volatile uint32_t *uart, char *buf);
 
 #endif
