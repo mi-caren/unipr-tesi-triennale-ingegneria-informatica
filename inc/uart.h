@@ -4,28 +4,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define USART2                  ( ( uint32_t ) 0x40004400 )
-#define LPUART1                 ( ( uint32_t ) 0x40008000 )
-#define USART1                  ( ( uint32_t ) 0x40013800 )
+#define USART2                  ( ( struct Uart * ) 0x40004400 )
+#define LPUART1                 ( ( struct Uart * ) 0x40008000 )
+#define USART1                  ( ( struct Uart * ) 0x40013800 )
 
 
 #define LPUART_KER_CK_PRES          ( 4000000 ) // 4Mhz
 
 
-enum UartRegisters {
-    UART_CR1    = 0x00,
-    UART_CR2    = 0x04,
-    UART_CR3    = 0x08,
-    UART_BRR    = 0x0c,
-    UART_GTPR   = 0x10, // USART1,2 only
-    UART_RTOR   = 0x14, // USART1,2 only
-    UART_RQR    = 0x18,
-    UART_ISR    = 0x1c,
-    UART_ICR    = 0x20,
-    UART_RDR    = 0x24,
-    UART_TDR    = 0x28,
-    UART_PRESC  = 0x2c,
+struct Uart {
+    volatile uint32_t CR1;
+    volatile uint32_t CR2;
+    volatile uint32_t CR3;
+    volatile uint32_t BRR;
+    volatile uint32_t GTPR;
+    volatile uint32_t RTOR;
+    volatile uint32_t RQR;
+    volatile uint32_t ISR;
+    volatile uint32_t ICR;
+    volatile uint32_t RDR;
+    volatile uint32_t TDR;
+    volatile uint32_t PRESC;
 };
+
 
 enum UartRegistersBits {
     // CR1 bits (FIFO disabled)
@@ -73,8 +74,8 @@ enum UartRegistersBits {
     LPUART_ISR_BIT_REACK        = 1 << 22,
 };
 
-void uart_init(uint32_t uart, uint32_t baud_rate);
-void uart_write_byte(uint32_t uart, uint8_t byte);
-void uart_write_buf(uint32_t uart, char *buf);
+void uart_init(struct Uart *uart, uint32_t baud_rate);
+void uart_write_byte(struct Uart *uart, uint8_t byte);
+void uart_write_buf(struct Uart *uart, char *buf);
 
 #endif
