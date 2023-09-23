@@ -14,6 +14,7 @@ int main(void) {
     rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
+    // Initialize LPUART to communicate with serial terminal
     uart_init(LPUART1, 115200);
 
     // init SysTick

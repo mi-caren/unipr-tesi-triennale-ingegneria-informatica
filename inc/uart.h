@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define USART2                  ( ( volatile uint32_t * ) 0x40004400 )
-#define LPUART1                 0x40008000
-#define USART1                  ( ( volatile uint32_t * ) 0x40013800 )
+#define USART2                  ( ( uint32_t ) 0x40004400 )
+#define LPUART1                 ( ( uint32_t ) 0x40008000 )
+#define USART1                  ( ( uint32_t ) 0x40013800 )
 
 
 #define LPUART_KER_CK_PRES          ( 4000000 ) // 4Mhz
@@ -73,8 +73,8 @@ enum UartRegistersBits {
     LPUART_ISR_BIT_REACK        = 1 << 22,
 };
 
-void uart_init(int uart, uint32_t baud_rate);
-void uart_write_byte(int uart, uint8_t byte);
-void uart_write_buf(int uart, char *buf);
+void uart_init(uint32_t uart, uint32_t baud_rate);
+void uart_write_byte(uint32_t uart, uint8_t byte);
+void uart_write_buf(uint32_t uart, char *buf);
 
 #endif
