@@ -57,7 +57,28 @@ enum {
     GPIO_PA3_AF_I2S2_MCK            = 5,
     GPIO_PA3_AF_USART2_RX           = 7,
     GPIO_PA3_AF_LPUART1_RX          = 8,
-    GPIO_PA3_AF_CM4_EVENTOUT        = 15
+    GPIO_PA3_AF_CM4_EVENTOUT        = 15,
+
+    // PA9 alternate functions
+    GPIO_PA9_AF_TIM1_CH2            = 1,
+    GPIO_PA9_AF_SPI2_NSS            = 3,
+    GPIO_PA9_AF_I2S2_WS             = 3,
+    GPIO_PA9_AF_I2C1_SCL            = 4,
+    GPIO_PA9_AF_SPI2_SCK            = 5,
+    GPIO_PA9_AF_I2S2_CK             = 5,
+    GPIO_PA9_AF_USART1_TX           = 7,
+    GPIO_PA9_AF_CM4_EVENTOUT        = 15,
+
+    // PA10 alternate functions
+    GPIO_PA10_AF_RTC_REFIN           = 0,
+    GPIO_PA10_AF_TIM1_CH3            = 1,
+    GPIO_PA10_AF_I2C1_SDA            = 4,
+    GPIO_PA10_AF_SPI2_MOSI           = 5,
+    GPIO_PA10_AF_I2S2_SD             = 5,
+    GPIO_PA10_AF_USART1_RX           = 7,
+    GPIO_PA10_AF_DEBUG_RF_HSE32RDY   = 13,
+    GPIO_PA10_AF_TIM17_BKIN          = 14,
+    GPIO_PA10_AF_CM4_EVENTOUT        = 15,
 };
 
 enum {

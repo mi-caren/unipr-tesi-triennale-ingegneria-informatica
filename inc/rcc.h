@@ -59,7 +59,15 @@ enum {
     // APB1ENR2 bits
     RCC_APB1ENR2_BIT_LPUART1EN      = 1 << 0,
     RCC_APB1ENR2_BIT_LPTIM2EN       = 1 << 5,
-    RCC_APB1ENR2_BIT_LPTIM3EN       = 1 << 6
+    RCC_APB1ENR2_BIT_LPTIM3EN       = 1 << 6,
+
+    // APB2ENR bits
+    RCC_APB2ENR2_BIT_ADCEN          = 1 << 9,
+    RCC_APB2ENR2_BIT_TIM1EN         = 1 << 11,
+    RCC_APB2ENR2_BIT_SPI1EN         = 1 << 12,
+    RCC_APB2ENR2_BIT_USART1EN       = 1 << 14,
+    RCC_APB2ENR2_BIT_TIM16EN        = 1 << 17,
+    RCC_APB2ENR2_BIT_TIM17EN        = 1 << 18,
 };
 
 void rcc_gpio_ck_enable(uint32_t bits);

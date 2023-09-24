@@ -13,7 +13,7 @@ void uart_init(struct Uart *uart, uint32_t baud_rate) {
         gpio_set_mode(GPIOA, GPIO_PIN_3, GPIO_MODE_ALTERNATE_FUNCTION);
         gpio_set_af(GPIOA, GPIO_PIN_3, GPIO_PA3_AF_LPUART1_RX);
         uart->BRR = ( ( 256 * LPUART_KER_CK_PRES ) ) / baud_rate;
-        uart->CR1 |= LPUART_CR1_BIT_UE | LPUART_CR1_BIT_TE;
+        uart->CR1 |= UART_CR1_BIT_UE | UART_CR1_BIT_TE;
     }
 }
 

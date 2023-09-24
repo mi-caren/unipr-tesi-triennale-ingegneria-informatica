@@ -6,6 +6,7 @@
 #include "uart.h"
 #include "rcc.h"
 #include "utils.h"
+#include "spi12.h"
 
 volatile uint32_t systick_ovf;
 
@@ -16,6 +17,7 @@ int main(void) {
 
     // Initialize LPUART to communicate with serial terminal
     uart_init(LPUART1, 115200);
+    spi12_init(USART1);
 
     // init SysTick
     systick_init_ms();
