@@ -8,9 +8,10 @@
 #include "utils.h"
 #include "spi12.h"
 
-#define MAX_TIMERS                      10
+#define MAX_TIMERS                          10
 
-#define MONITOR_ROW_LENGTH              32
+#define MONITOR_ROW_LENGTH                  32
+#define MAX_CONSEC_IDENTICAL_PRINTS         8
 
 volatile uint32_t systick_ovf;
 
@@ -71,24 +72,52 @@ void systick_handler(void) {
         timers_current_values[i] -= 1;
     }
 
-    static uint8_t pa19_value = 0;
-    static uint8_t pa19_buf = 0;
+    monitor_pin(GPIOA, GPIO_PIN_9);
+}
+
+void monitor_pin(struct gpio *gpio, uint8_t pin) {
+    static uint8_t pin_value = 0;
+    static uint8_t pin_buf = 0;
     static uint8_t bit_counter = 7;
     static uint8_t row_counter = MONITOR_ROW_LENGTH;
+    static uint8_t last_buf_read = 0;
+    static uint8_t identical_prints_count = 0;;
 
-    pa19_value = gpio_read(GPIOA, GPIO_PIN_9);
-    pa19_buf |= pa19_value << bit_counter;
+    pin_value = gpio_read(gpio, pin);
+    pin_buf |= pin_value << bit_counter;
     if (bit_counter == 0) {
         bit_counter = 7;
-        uart_write_byte(LPUART1, pa19_buf + 0x30);
-        uart_write_byte(LPUART1, ' ');
-        pa19_buf = 0;
-        if (--row_counter == 0) {
-            uart_write_byte(LPUART1, '\n');
-            row_counter = MONITOR_ROW_LENGTH;
+        if (last_buf_read == pin_buf) {
+            identical_prints_count++;
+        } else {
+            identical_prints_count = 0;
         }
+        if (identical_prints_count < MAX_CONSEC_IDENTICAL_PRINTS) {
+            uart_write_byte(LPUART1, int_to_hex_char((0xf0 & pin_buf) >> 4));
+            uart_write_byte(LPUART1, int_to_hex_char(0xf & pin_buf));
+            uart_write_byte(LPUART1, ' ');
+            if (--row_counter == 0) {
+                uart_write_byte(LPUART1, '\n');
+                row_counter = MONITOR_ROW_LENGTH;
+            }
+        }
+        if (identical_prints_count == MAX_CONSEC_IDENTICAL_PRINTS) {
+            uart_write_buf(LPUART1, "... ");
+        }
+        last_buf_read = pin_buf;
+        pin_buf = 0;
     } else {
         bit_counter--;
+    }
+}
+
+char int_to_hex_char(uint8_t n) {
+    if (n > 15) {
+        return 'X';
+    } else if (n < 10) {
+        return n + 0x30;
+    } else {
+        return n - 10 + 0x41;
     }
 }
 
