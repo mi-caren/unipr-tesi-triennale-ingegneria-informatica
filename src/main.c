@@ -30,16 +30,35 @@ int main(void) {
     systick_init_ms();
 
     unsigned int timer_blink = 1000;
-    unsigned int timer_gpioa_pin_9_check = 200;
-
+    unsigned int timer_gpioa_pin_9_check = 50;
     timers_count = 0;
     cpu_timer_start(&timer_blink);
     cpu_timer_start(&timer_gpioa_pin_9_check);
 
+    uint8_t pa19_value;
+    uint8_t pa19_buf = 0;
+    uint8_t bit_counter = 7;
+    uint8_t row_counter = 16;
+
+    uart_write_byte(LPUART1, '\n');
+    uart_write_buf(LPUART1, "App start");
+    uart_write_byte(LPUART1, '\n');
+
     while (1) {
         if (cpu_timer_wait(&timer_gpioa_pin_9_check)) {
-            uint8_t open_drain = (GPIOA->OTYPER & (1 << GPIO_PIN_9)) >> GPIO_PIN_9;
-            app_log("GPIOA pin 9 open-drain: %d", (int[]){ open_drain });
+            pa19_value = gpio_read(GPIOA, GPIO_PIN_9);
+            pa19_buf |= pa19_value << bit_counter;
+            if (bit_counter == 0) {
+                bit_counter = 7;
+                uart_write_byte(LPUART1, pa19_buf + 0x30);
+                uart_write_byte(LPUART1, ' ');
+                if (--row_counter == 0) {
+                    uart_write_byte(LPUART1, '\n');
+                    row_counter = 16;
+                }
+            } else {
+                bit_counter--;
+            }
         }
 
         // blink blue LED
