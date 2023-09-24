@@ -4,9 +4,16 @@
 
 #define MAX_NUMBER_OF_DIGITS		( 11 )
 
+extern volatile uint32_t systick_ovf;
+
 
 void spin(volatile uint32_t count) {
 	while (count--) (void) 0;
+}
+
+void delay(unsigned int ms) {
+    uint32_t end_ms = systick_ovf + ms;
+    while (systick_ovf < end_ms) (void) 0;
 }
 
 char* int_to_string(int n) {

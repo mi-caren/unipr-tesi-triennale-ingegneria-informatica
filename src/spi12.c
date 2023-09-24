@@ -1,6 +1,7 @@
 #include "uart.h"
 #include "rcc.h"
 #include "gpio.h"
+#include "utils.h"
 
 void spi12_init(struct Uart *uart) {
     if (uart == USART1) {
@@ -40,5 +41,7 @@ void spi12_wake_up(struct Uart *uart) {
     if (uart == USART1) {
         gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_OUTPUT);
         gpio_write(GPIOA, GPIO_PIN_9, HIGH);
+        delay(12);
+        gpio_write(GPIOA, GPIO_PIN_9, LOW);
     }
 }

@@ -15,5 +15,6 @@ enum Error {
 
 void spin(volatile uint32_t count);
 char* int_to_string(int n);
+void delay(unsigned int ms);
 
 #endif

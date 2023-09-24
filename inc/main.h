@@ -22,7 +22,6 @@ struct systick {
 
 
 void systick_init_ms();
-void delay(unsigned int ms);
 void app_log(char *buf, int *buf_values);
 void cpu_timer_start(unsigned int *timer_ms);
 uint8_t cpu_timer_wait(unsigned int *timer_ms);
