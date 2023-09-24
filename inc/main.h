@@ -21,11 +21,18 @@ struct systick {
 	volatile uint32_t CALIB;
 };
 
+struct CpuTimer {
+    unsigned int reset_value;
+	unsigned int current_value;
+};
+
 
 void systick_init_ms();
 void app_log(char *buf, int *buf_values);
-void cpu_timer_start(unsigned int *timer_ms);
-uint8_t cpu_timer_wait(unsigned int *timer_ms);
+
+struct CpuTimer* cpu_timer_new(unsigned int timeout);
+uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer);
+
 void monitor_pin(struct gpio *gpio, uint8_t pin);
 char int_to_hex_char(uint8_t n);
 

@@ -15,9 +15,7 @@
 
 volatile uint32_t systick_ovf;
 
-unsigned int *timers[MAX_TIMERS];
-unsigned int timers_reset_values[MAX_TIMERS];
-unsigned int timers_current_values[MAX_TIMERS];
+struct CpuTimer timers[MAX_TIMERS];
 uint8_t timers_count;
 
 
@@ -32,23 +30,21 @@ int main(void) {
     // init SysTick
     systick_init_ms();
 
-    unsigned int timer_blink = 1000;
-    unsigned int timer_spi12_wake_up = 2000;
     timers_count = 0;
-    cpu_timer_start(&timer_blink);
-    cpu_timer_start(&timer_spi12_wake_up);
+    struct CpuTimer *cpu_timer_blink = cpu_timer_new(1000);
+    struct CpuTimer *cpu_timer_spi12_wake_up = cpu_timer_new(2000);
 
     uart_write_byte(LPUART1, '\n');
     uart_write_buf(LPUART1, "App start");
     uart_write_byte(LPUART1, '\n');
 
     while (1) {
-        if (cpu_timer_wait(&timer_spi12_wake_up)) {
+        if (cpu_timer_wait(cpu_timer_spi12_wake_up)) {
             spi12_wake_up(USART1);
         }
 
         // blink blue LED
-        if (cpu_timer_wait(&timer_blink)) {
+        if (cpu_timer_wait(cpu_timer_blink)) {
             gpio_write(GPIOB, GPIO_PIN_15, !gpio_read(GPIOB, GPIO_PIN_15));
         }
     }
@@ -69,7 +65,7 @@ void systick_init_ms() {
 void systick_handler(void) {
     systick_ovf++;
     for (uint8_t i = 0; i < timers_count; i++) {
-        timers_current_values[i] -= 1;
+        timers[i].current_value -= 1;
     }
 
     monitor_pin(GPIOA, GPIO_PIN_9);
@@ -121,21 +117,22 @@ char int_to_hex_char(uint8_t n) {
     }
 }
 
-
-void cpu_timer_start(unsigned int *timer_ms) {
-    timers[timers_count] = timer_ms;
-    timers_reset_values[timers_count] = *timer_ms;
-    timers_current_values[timers_count] = *timer_ms;
-    timers_count++;
+struct CpuTimer* cpu_timer_new(unsigned int timeout) {
+    struct CpuTimer new_timer = {
+        .reset_value = timeout,
+        .current_value = timeout
+    };
+    timers[timers_count++] = new_timer;
+    return &(timers[timers_count - 1]);
 }
 
-uint8_t cpu_timer_wait(unsigned int *timer_ms) {
+uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer) {
     uint8_t i = 0;
     while (i != timers_count) {
-        if (timers[i] == timer_ms) {
-            unsigned int end_ms = systick_ovf + timers_current_values[i];
+        if (&(timers[i]) == cpu_timer) {
+            unsigned int end_ms = systick_ovf + timers[i].current_value;
             if (systick_ovf >= end_ms) {
-                timers_current_values[i] = timers_reset_values[i];
+                timers[i].current_value = timers[i].reset_value;
                 return 1;
             }
 
