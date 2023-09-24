@@ -43,3 +43,11 @@ int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val) {
 
 	return 0;
 }
+
+int8_t gpio_read(struct  gpio *gpio, uint8_t pin) {
+    if (pin > 15) {
+        return -1;
+    }
+
+    return (gpio->IDR & (1 << pin)) >> pin;
+}

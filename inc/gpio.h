@@ -100,12 +100,16 @@ enum {
 	GPIO_PIN_15
 };
 
+enum {
+    LOW,
+    HIGH
+};
 
 int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode);
 
 int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af);
 
 int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val);
-
+int8_t gpio_read(struct  gpio *gpio, uint8_t pin);
 
 #endif

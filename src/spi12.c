@@ -7,7 +7,7 @@ void spi12_init(struct Uart *uart) {
         RCC->APB2ENR |= RCC_APB2ENR2_BIT_USART1EN;
         RCC->AHB2ENR |= RCC_AHB2ENR_BIT_GPIOAEN;
 
-        gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
+        // gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
         // gpio_set_mode(GPIOA, GPIO_PIN_10, GPIO_MODE_ALTERNATE_FUNCTION);
 
         gpio_set_af(GPIOA, GPIO_PIN_9, GPIO_PA9_AF_USART1_TX);
@@ -30,5 +30,15 @@ void spi12_init(struct Uart *uart) {
         uart->CR2 &= ~(UART_CR2_BIT_STOP1 | UART_CR2_BIT_STOP0); // 1 stop bit
 
         uart->CR1 |= UART_CR1_BIT_UE | UART_CR1_BIT_TE | UART_CR1_BIT_RE;
+
+        gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_OUTPUT);
+        gpio_write(GPIOA, GPIO_PIN_9, LOW);
+    }
+}
+
+void spi12_wake_up(struct Uart *uart) {
+    if (uart == USART1) {
+        gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_OUTPUT);
+        gpio_write(GPIOA, GPIO_PIN_9, HIGH);
     }
 }
