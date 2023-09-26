@@ -47,10 +47,17 @@ int main(void) {
             spi12_wake_up(USART1);
             spi12_start_measurement(USART1, 0);
             cpu_timer_reset(cpu_timer_sensor_response_timeout);
-            while (cpu_timer_wait(cpu_timer_sensor_response_timeout) == 0) {
-                (void) 0;
+            uint8_t sensor_response_timed_out = 1;
+
+            while (!cpu_timer_wait(cpu_timer_sensor_response_timeout) && !uart_data_received(USART1)) (void) 0;
+
+            if (sensor_response_timed_out) {
+                uart_write_buf(LPUART1, "No responde from sensor!\n");
+                continue;
             }
+
             
+            // Sono stati ricevuti dei dati
         }
 
         // blink blue LED
