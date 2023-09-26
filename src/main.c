@@ -13,7 +13,10 @@
 #define MONITOR_ROW_LENGTH                  32
 #define MAX_CONSEC_IDENTICAL_PRINTS         8
 
+#define SYSTICK_OVF_PER_SEC                 (1000)
+
 volatile uint32_t systick_ovf;
+uint32_t systick_ovf_per_sec;
 
 struct CpuTimer timers[MAX_TIMERS];
 uint8_t timers_count;
@@ -28,11 +31,12 @@ int main(void) {
     spi12_init(USART1);
 
     // init SysTick
-    systick_init_ms();
+    systick_init(SYSTICK_OVF_PER_SEC);
 
     timers_count = 0;
-    struct CpuTimer *cpu_timer_blink = cpu_timer_new(1000);
-    struct CpuTimer *cpu_timer_spi12_wake_up = cpu_timer_new(2000);
+    struct CpuTimer *cpu_timer_blink = cpu_timer_new(2000);
+    struct CpuTimer *cpu_timer_spi12_wake_up = cpu_timer_new(5000);
+    struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(15);
 
     uart_write_byte(LPUART1, '\n');
     uart_write_buf(LPUART1, "App start");
@@ -41,6 +45,12 @@ int main(void) {
     while (1) {
         if (cpu_timer_wait(cpu_timer_spi12_wake_up)) {
             spi12_wake_up(USART1);
+            spi12_start_measurement(USART1, 0);
+            cpu_timer_reset(cpu_timer_sensor_response_timeout);
+            while (cpu_timer_wait(cpu_timer_sensor_response_timeout) == 0) {
+                (void) 0;
+            }
+            
         }
 
         // blink blue LED
@@ -55,9 +65,10 @@ int main(void) {
 
 
 
-void systick_init_ms() {
+void systick_init(uint32_t ovf_per_sec) {
+    systick_ovf_per_sec = ovf_per_sec;
     SYSTICK->VAL = 0;
-    SYSTICK->LOAD = 4000000 / 1000;
+    SYSTICK->LOAD = 4000000 / ovf_per_sec;
     SYSTICK->CTRL |= 0b111;
     systick_ovf = 0;
 }
@@ -77,7 +88,7 @@ void monitor_pin(struct gpio *gpio, uint8_t pin) {
     static uint8_t bit_counter = 7;
     static uint8_t row_counter = MONITOR_ROW_LENGTH;
     static uint8_t last_buf_read = 0;
-    static uint8_t identical_prints_count = 0;;
+    static uint32_t identical_prints_count = 0;;
 
     pin_value = gpio_read(gpio, pin);
     pin_buf |= pin_value << bit_counter;
@@ -119,19 +130,23 @@ char int_to_hex_char(uint8_t n) {
 
 struct CpuTimer* cpu_timer_new(unsigned int timeout) {
     struct CpuTimer new_timer = {
-        .reset_value = timeout,
-        .current_value = timeout
+        .reset_value = timeout*(systick_ovf_per_sec/1000),
+        .current_value = timeout*(systick_ovf_per_sec/1000)
     };
     timers[timers_count++] = new_timer;
     return &(timers[timers_count - 1]);
+}
+
+void cpu_timer_reset(struct CpuTimer *cpu_timer) {
+    cpu_timer->current_value = cpu_timer->reset_value;
 }
 
 uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer) {
     uint8_t i = 0;
     while (i != timers_count) {
         if (&(timers[i]) == cpu_timer) {
-            unsigned int end_ms = systick_ovf + timers[i].current_value;
-            if (systick_ovf >= end_ms) {
+            uint32_t end_ovf = systick_ovf + timers[i].current_value + (timers[i].reset_value%1000 != 0 ? 1 : 0);
+            if (systick_ovf >= end_ovf) {
                 timers[i].current_value = timers[i].reset_value;
                 return 1;
             }

@@ -5,6 +5,8 @@
 #define MAX_NUMBER_OF_DIGITS		( 11 )
 
 extern volatile uint32_t systick_ovf;
+extern uint32_t systick_ovf_per_sec;
+
 
 
 void spin(volatile uint32_t count) {
@@ -12,8 +14,8 @@ void spin(volatile uint32_t count) {
 }
 
 void delay(unsigned int ms) {
-    uint32_t end_ms = systick_ovf + ms;
-    while (systick_ovf < end_ms) (void) 0;
+    uint32_t end_ovf = systick_ovf + ms*(systick_ovf_per_sec/1000) + (systick_ovf_per_sec%1000 != 0 ? 1 : 0);
+    while (systick_ovf < end_ovf) (void) 0;
 }
 
 char* int_to_string(int n) {

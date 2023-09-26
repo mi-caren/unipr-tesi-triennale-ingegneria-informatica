@@ -17,8 +17,9 @@ void spi12_init(struct Uart *uart) {
         uart->CR3 |= UART_CR3_BIT_HDSEL; // half-duplex mode
         GPIOA->OTYPER |= 1 << GPIO_PIN_9; // TX pin open-drain
         GPIOA->PUPDR |= 0b01 << (GPIO_PIN_9 * 2); // TX pull-up
+        // GPIOA->PUPDR |= 0b10 << (GPIO_PIN_9 * 2); // TX pull-down
 
-        uart->CR2 |= UART_CR2_BIT_TXINV; // negative logic
+        uart->CR2 |= UART_CR2_BIT_TXINV | UART_CR2_BIT_RXINV; // negative logic
 
         uart->BRR = UART1_KER_CK_PRES / 1200;
         
@@ -43,5 +44,21 @@ void spi12_wake_up(struct Uart *uart) {
         gpio_write(GPIOA, GPIO_PIN_9, HIGH);
         delay(12);
         gpio_write(GPIOA, GPIO_PIN_9, LOW);
+        delay(9);
     }
+}
+
+uint8_t spi12_start_measurement(struct Uart *uart, uint8_t sensor_address) {
+    if (sensor_address > 9) {
+        return 1;
+    }
+    char buf[] = "aM!";
+    buf[0] = sensor_address + 0x30;
+
+    if (uart == USART1) {
+        gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
+        uart_write_buf(USART1, buf);
+    }
+
+    return 0;
 }
