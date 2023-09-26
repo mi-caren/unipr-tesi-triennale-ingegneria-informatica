@@ -6,6 +6,11 @@
 
 #define MEM_OFFSET(base, offset)     *( (volatile uint32_t *) (base + offset) )
 
+// millisecond timer made with software
+struct CpuTimer {
+    unsigned int reset_value;
+	unsigned int current_value;
+};
 
 enum Error {
     ERROR_WRONG_PERIPHERAL = 1,
@@ -16,5 +21,11 @@ enum Error {
 void spin(volatile uint32_t count);
 char* int_to_string(int n);
 void delay(unsigned int ms);
+
+struct CpuTimer* cpu_timer_new(unsigned int timeout);
+uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer);
+void cpu_timer_reset(struct CpuTimer *cpu_timer);
+uint8_t cpu_timer_get_timers_count();
+void cpu_timer_tick(uint8_t index);
 
 #endif

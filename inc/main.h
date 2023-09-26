@@ -21,19 +21,10 @@ struct systick {
 	volatile uint32_t CALIB;
 };
 
-// millisecond timer made with software
-struct CpuTimer {
-    unsigned int reset_value;
-	unsigned int current_value;
-};
-
 
 void systick_init();
 void app_log(char *buf, int *buf_values);
 
-struct CpuTimer* cpu_timer_new(unsigned int timeout);
-uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer);
-void cpu_timer_reset(struct CpuTimer *cpu_timer);
 
 void monitor_pin(struct gpio *gpio, uint8_t pin);
 char int_to_hex_char(uint8_t n);
