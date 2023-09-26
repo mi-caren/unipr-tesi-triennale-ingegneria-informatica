@@ -13,7 +13,7 @@
 #define MONITOR_ROW_LENGTH                  32
 #define MAX_CONSEC_IDENTICAL_PRINTS         8
 
-#define SYSTICK_OVF_PER_SEC                 (1000)
+#define SYSTICK_OVF_PER_SEC                 (1200)
 
 volatile uint32_t systick_ovf;
 uint32_t systick_ovf_per_sec;

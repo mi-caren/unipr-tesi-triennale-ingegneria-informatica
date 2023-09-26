@@ -15,9 +15,9 @@ void spi12_init(struct Uart *uart) {
         // gpio_set_af(GPIOA, GPIO_PIN_10, GPIO_PA10_AF_USART1_RX);
 
         uart->CR3 |= UART_CR3_BIT_HDSEL; // half-duplex mode
-        GPIOA->OTYPER |= 1 << GPIO_PIN_9; // TX pin open-drain
-        GPIOA->PUPDR |= 0b01 << (GPIO_PIN_9 * 2); // TX pull-up
-        // GPIOA->PUPDR |= 0b10 << (GPIO_PIN_9 * 2); // TX pull-down
+        // GPIOA->OTYPER |= 1 << GPIO_PIN_9; // TX pin open-drain
+        // GPIOA->PUPDR |= 0b01 << (GPIO_PIN_9 * 2); // TX pull-up
+        GPIOA->PUPDR |= 0b10 << (GPIO_PIN_9 * 2); // TX pull-down
 
         uart->CR2 |= UART_CR2_BIT_TXINV | UART_CR2_BIT_RXINV; // negative logic
 
