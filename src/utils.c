@@ -90,3 +90,16 @@ void cpu_timer_tick(uint8_t index) {
         timers[index].current_value -= 1;
     }
 }
+
+void cpu_timer_remove(struct CpuTimer *cpu_timer) {
+    for (uint8_t i = 0; i < timers_count; i++) {
+        if (&(timers[i]) == cpu_timer) {
+            for (uint8_t j = i+1; j < timers_count; j++) {
+                timers[i] = timers[j];
+                i++;
+            }
+            timers_count--;
+            return;
+        }
+    }
+}
