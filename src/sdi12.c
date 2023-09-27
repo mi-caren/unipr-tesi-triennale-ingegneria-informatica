@@ -3,7 +3,7 @@
 #include "gpio.h"
 #include "utils.h"
 
-void spi12_init(struct Uart *uart) {
+void sdi12_init(struct Uart *uart) {
     if (uart == USART1) {
         RCC->APB2ENR |= RCC_APB2ENR2_BIT_USART1EN;
         RCC->AHB2ENR |= RCC_AHB2ENR_BIT_GPIOAEN;
@@ -38,7 +38,7 @@ void spi12_init(struct Uart *uart) {
     }
 }
 
-void spi12_wake_up(struct Uart *uart) {
+void sdi12_wake_up(struct Uart *uart) {
     if (uart == USART1) {
         gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_OUTPUT);
         gpio_write(GPIOA, GPIO_PIN_9, HIGH);
@@ -48,7 +48,7 @@ void spi12_wake_up(struct Uart *uart) {
     }
 }
 
-uint8_t spi12_start_measurement(struct Uart *uart, uint8_t sensor_address) {
+uint8_t sdi12_start_measurement(struct Uart *uart, uint8_t sensor_address) {
     if (sensor_address > 9) {
         return 1;
     }
@@ -64,7 +64,7 @@ uint8_t spi12_start_measurement(struct Uart *uart, uint8_t sensor_address) {
 }
 
 // returns the number of byte read, stopping anyway after buf is full
-uint8_t spi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len) {
+uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len) {
     struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(15);
 
     uint8_t i;

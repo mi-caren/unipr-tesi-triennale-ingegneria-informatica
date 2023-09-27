@@ -6,7 +6,7 @@
 #include "uart.h"
 #include "rcc.h"
 #include "utils.h"
-#include "spi12.h"
+#include "sdi12.h"
 
 
 #define MONITOR_ROW_LENGTH                  32
@@ -26,7 +26,7 @@ int main(void) {
 
     // Initialize LPUART to communicate with serial terminal
     uart_init(LPUART1, 115200);
-    spi12_init(USART1);
+    sdi12_init(USART1);
 
     // init SysTick
     systick_init(SYSTICK_OVF_PER_SEC);
@@ -34,20 +34,20 @@ int main(void) {
     // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
     cpu_timers_clean();
     struct CpuTimer *cpu_timer_blink = cpu_timer_new(2000);
-    struct CpuTimer *cpu_timer_spi12_wake_up = cpu_timer_new(5000);
+    struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(5000);
 
     uart_write_byte(LPUART1, '\n');
     uart_write_buf(LPUART1, "App start");
     uart_write_byte(LPUART1, '\n');
 
     while (1) {
-        if (cpu_timer_wait(cpu_timer_spi12_wake_up)) {
-            spi12_wake_up(USART1);
-            spi12_start_measurement(USART1, 0);
+        if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
+            sdi12_wake_up(USART1);
+            sdi12_start_measurement(USART1, 0);
 
 
-            char sensor_response_buf[SPI12_START_MEASUREMENT_RESPONSE_LENGTH];
-            uint8_t byte_read = spi12_get_sensor_response(USART1, sensor_response_buf, SPI12_START_MEASUREMENT_RESPONSE_LENGTH);
+            char sensor_response_buf[SDI12_START_MEASUREMENT_RESPONSE_LENGTH];
+            uint8_t byte_read = sdi12_get_sensor_response(USART1, sensor_response_buf, SDI12_START_MEASUREMENT_RESPONSE_LENGTH);
             if (byte_read == 0) {
                 uart_write_buf(LPUART1, "No data from sensor!\n");
             }
