@@ -24,6 +24,37 @@ void uart_write_byte(struct Uart *uart, uint8_t byte) {
     }
 }
 
+uint16_t uart_read_data(struct Uart *uart) {
+    if (!uart_data_received(uart)) {
+        return UART_ERR_READ_DATA_NO_DATA;
+    }
+
+    uint8_t wl = uart_get_word_length(uart);
+    if (wl == UART_ERR_GET_WL) {
+        return UART_ERR_READ_DATA_WL;
+    }
+
+    return uart->RDR & 0x1ff & (3 << wl);
+}
+
+uint8_t uart_get_word_length(struct Uart *uart) {
+    uint8_t wl = 0;
+    // potrei creare una funzione che dato un bit restituisca la sua posizione
+    // @TODO
+    wl |= (uart->CR1 & UART_CR1_BIT_M1) >> 28 << 1;
+    wl |= (uart->CR1 & UART_CR1_BIT_M0) >> 12;
+    switch (wl) {
+        case 0:
+            return 8;
+        case 1:
+            return 9;
+        case 2:
+            return 7;
+        default:
+            return UART_ERR_GET_WL;
+    }
+}
+
 void uart_write_buf(struct Uart *uart, char *buf) {
     while (*buf != 0) {
         uart_write_byte(uart, *(buf++));
@@ -31,7 +62,7 @@ void uart_write_buf(struct Uart *uart, char *buf) {
 }
 
 bool uart_data_received(struct Uart *uart) {
-    if (uart->ISR & UART_ISR_BIT_RXNE != 0) {
+    if ((uart->ISR & UART_ISR_BIT_RXNE) != 0) {
         return true;
     }
     return false;

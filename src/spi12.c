@@ -76,7 +76,7 @@ uint8_t spi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len)
             }
         };
 
-        buf[i] = uart_read_byte(uart);
+        buf[i] = (uint8_t)uart_read_data(uart);
         cpu_timer_init(cpu_timer_sensor_response_timeout, 2);
     }
 

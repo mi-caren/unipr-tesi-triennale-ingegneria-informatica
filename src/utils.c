@@ -5,6 +5,8 @@
 #define MAX_NUMBER_OF_DIGITS		11
 #define MAX_TIMERS                  10
 
+#define CPU_TIMER_MS                1000
+
 
 extern volatile uint32_t systick_ovf;
 extern uint32_t systick_ovf_per_sec;
@@ -105,4 +107,9 @@ void cpu_timer_remove(struct CpuTimer *cpu_timer) {
             return;
         }
     }
+}
+
+
+void cpu_timers_clean() {
+    timers_count = 0;
 }

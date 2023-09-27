@@ -90,10 +90,18 @@ enum UartRegistersBits {
     UART_ISR_BIT_REACK          = 1 << 22,
 };
 
+enum UartErrors {
+    UART_ERR_READ_DATA_WL               = 0x200,
+    UART_ERR_READ_DATA_NO_DATA          = 0x201,
+
+    UART_ERR_GET_WL                     = 0x0,
+};
+
 void uart_init(struct Uart *uart, uint32_t baud_rate);
 void uart_write_byte(struct Uart *uart, uint8_t byte);
 void uart_write_buf(struct Uart *uart, char *buf);
 bool uart_data_received(struct Uart *uart);
-uint8_t uart_read_byte(struct Uart *uart);
+uint16_t uart_read_data(struct Uart *uart);
+uint8_t uart_get_word_length(struct Uart *uart);
 
 #endif

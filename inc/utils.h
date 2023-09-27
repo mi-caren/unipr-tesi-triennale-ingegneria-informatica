@@ -29,5 +29,6 @@ void cpu_timer_init(struct CpuTimer *cpu_timer, unsigned int timeout);
 uint8_t cpu_timer_get_timers_count();
 void cpu_timer_tick(uint8_t index);
 void cpu_timer_remove(struct CpuTimer *cpu_timer);
+void cpu_timers_clean();
 
 #endif

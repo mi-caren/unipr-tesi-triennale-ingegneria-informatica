@@ -31,9 +31,10 @@ int main(void) {
     // init SysTick
     systick_init(SYSTICK_OVF_PER_SEC);
 
+    // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
+    cpu_timers_clean();
     struct CpuTimer *cpu_timer_blink = cpu_timer_new(2000);
     struct CpuTimer *cpu_timer_spi12_wake_up = cpu_timer_new(5000);
-    struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(15);
 
     uart_write_byte(LPUART1, '\n');
     uart_write_buf(LPUART1, "App start");
@@ -43,18 +44,18 @@ int main(void) {
         if (cpu_timer_wait(cpu_timer_spi12_wake_up)) {
             spi12_wake_up(USART1);
             spi12_start_measurement(USART1, 0);
-            cpu_timer_reset(cpu_timer_sensor_response_timeout);
-            uint8_t sensor_response_timed_out = 1;
 
-            // while (!cpu_timer_wait(cpu_timer_sensor_response_timeout) && !uart_data_received(USART1)) (void) 0;
 
-            if (sensor_response_timed_out) {
-                uart_write_buf(LPUART1, "No response from sensor!\n");
-                continue;
+            char sensor_response_buf[SPI12_START_MEASUREMENT_RESPONSE_LENGTH];
+            uint8_t byte_read = spi12_get_sensor_response(USART1, sensor_response_buf, SPI12_START_MEASUREMENT_RESPONSE_LENGTH);
+            if (byte_read == 0) {
+                uart_write_buf(LPUART1, "No data from sensor!\n");
             }
 
-
-            // Sono stati ricevuti dei dati
+            for (uint8_t i = 0; i < byte_read; i++) {
+                uart_write_byte(LPUART1, sensor_response_buf[i]);
+            }
+            uart_write_byte(LPUART1, '\n');
         }
 
         // blink blue LED
