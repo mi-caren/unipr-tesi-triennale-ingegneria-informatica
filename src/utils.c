@@ -51,16 +51,19 @@ char* int_to_string(int n) {
 }
 
 struct CpuTimer* cpu_timer_new(unsigned int timeout) {
-    struct CpuTimer new_timer = {
-        .reset_value = timeout*(systick_ovf_per_sec/1000),
-        .current_value = timeout*(systick_ovf_per_sec/1000)
-    };
+    struct CpuTimer new_timer;
+    cpu_timer_init(&new_timer, timeout);
     timers[timers_count++] = new_timer;
     return &(timers[timers_count - 1]);
 }
 
 void cpu_timer_reset(struct CpuTimer *cpu_timer) {
     cpu_timer->current_value = cpu_timer->reset_value;
+}
+
+void cpu_timer_init(struct CpuTimer *cpu_timer, unsigned int timeout) {
+    cpu_timer->reset_value = timeout*(systick_ovf_per_sec/1000);
+    cpu_timer->current_value = timeout*(systick_ovf_per_sec/1000);
 }
 
 uint8_t cpu_timer_wait(struct CpuTimer *cpu_timer) {
