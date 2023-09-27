@@ -62,3 +62,24 @@ uint8_t spi12_start_measurement(struct Uart *uart, uint8_t sensor_address) {
 
     return 0;
 }
+
+// returns the number of byte read, stopping anyway after buf is full
+uint8_t spi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len) {
+    struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(15);
+
+    uint8_t i;
+    for (i = 0; i < buf_len; i++) {
+        while (!uart_data_received(uart)) {
+            if (cpu_timer_wait(cpu_timer_sensor_response_timeout) == 1) {
+                cpu_timer_remove(cpu_timer_sensor_response_timeout);
+                return i;
+            }
+        };
+
+        buf[i] = uart_read_byte(uart);
+        cpu_timer_init(cpu_timer_sensor_response_timeout, 2);
+    }
+
+    cpu_timer_remove(cpu_timer_sensor_response_timeout);
+    return i;
+}
