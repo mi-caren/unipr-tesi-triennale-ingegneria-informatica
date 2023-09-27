@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
 
 #define USART2                  ( ( struct Uart * ) 0x40004400 )
 #define LPUART1                 ( ( struct Uart * ) 0x40008000 )
@@ -68,27 +70,30 @@ enum UartRegistersBits {
     UART_CR3_BIT_HDSEL          = 1 << 3,
 
     // ISR bits
-    LPUART_ISR_BIT_PE           = 1 << 0,
-    LPUART_ISR_BIT_FE           = 1 << 1,
-    LPUART_ISR_BIT_NE           = 1 << 2,
-    LPUART_ISR_BIT_ORE          = 1 << 3,
-    LPUART_ISR_BIT_IDLE         = 1 << 4,
-    LPUART_ISR_BIT_RXNE         = 1 << 5,
-    LPUART_ISR_BIT_TC           = 1 << 6,
-    LPUART_ISR_BIT_TXE          = 1 << 7,
-    LPUART_ISR_BIT_CTSIF        = 1 << 9,
-    LPUART_ISR_BIT_CTS          = 1 << 10,
-    LPUART_ISR_BIT_BUSY         = 1 << 16,
-    LPUART_ISR_BIT_CMF          = 1 << 17,
-    LPUART_ISR_BIT_SBKF         = 1 << 18,
-    LPUART_ISR_BIT_RWU          = 1 << 19,
-    LPUART_ISR_BIT_WUF          = 1 << 20,
-    LPUART_ISR_BIT_TEACK        = 1 << 21,
-    LPUART_ISR_BIT_REACK        = 1 << 22,
+    UART_ISR_BIT_PE             = 1 << 0,
+    UART_ISR_BIT_FE             = 1 << 1,
+    UART_ISR_BIT_NE             = 1 << 2,
+    UART_ISR_BIT_ORE            = 1 << 3,
+    UART_ISR_BIT_IDLE           = 1 << 4,
+    UART_ISR_BIT_RXNE           = 1 << 5,
+    UART_ISR_BIT_TC             = 1 << 6,
+    UART_ISR_BIT_TXE            = 1 << 7,
+    UART_ISR_BIT_LBDF           = 1 << 8,
+    UART_ISR_BIT_CTSIF          = 1 << 9,
+    UART_ISR_BIT_CTS            = 1 << 10,
+    UART_ISR_BIT_BUSY           = 1 << 16,
+    UART_ISR_BIT_CMF            = 1 << 17,
+    UART_ISR_BIT_SBKF           = 1 << 18,
+    UART_ISR_BIT_RWU            = 1 << 19,
+    UART_ISR_BIT_WUF            = 1 << 20,
+    UART_ISR_BIT_TEACK          = 1 << 21,
+    UART_ISR_BIT_REACK          = 1 << 22,
 };
 
 void uart_init(struct Uart *uart, uint32_t baud_rate);
 void uart_write_byte(struct Uart *uart, uint8_t byte);
 void uart_write_buf(struct Uart *uart, char *buf);
+bool uart_data_received(struct Uart *uart);
+uint8_t uart_read_byte(struct Uart *uart);
 
 #endif

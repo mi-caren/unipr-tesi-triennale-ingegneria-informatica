@@ -19,7 +19,7 @@ void uart_init(struct Uart *uart, uint32_t baud_rate) {
 
 void uart_write_byte(struct Uart *uart, uint8_t byte) {
     uart->TDR = byte;
-    while ((uart->ISR & LPUART_ISR_BIT_TXE) == 0) {
+    while ((uart->ISR & UART_ISR_BIT_TXE) == 0) {
         spin(1);
     }
 }
@@ -28,4 +28,11 @@ void uart_write_buf(struct Uart *uart, char *buf) {
     while (*buf != 0) {
         uart_write_byte(uart, *(buf++));
     }
+}
+
+bool uart_data_received(struct Uart *uart) {
+    if (uart->ISR & UART_ISR_BIT_RXNE != 0) {
+        return true;
+    }
+    return false;
 }
