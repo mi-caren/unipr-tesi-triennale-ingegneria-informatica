@@ -42,20 +42,15 @@ int main(void) {
 
     while (1) {
         if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
-            sdi12_wake_up(USART1);
-            sdi12_start_measurement(USART1, 0);
-
-
-            char sensor_response_buf[SDI12_START_MEASUREMENT_RESPONSE_LENGTH];
-            uint8_t byte_read = sdi12_get_sensor_response(USART1, sensor_response_buf, SDI12_START_MEASUREMENT_RESPONSE_LENGTH);
-            if (byte_read == 0) {
-                uart_write_buf(LPUART1, "No data from sensor!\n");
+            uint8_t sensor_address = 0;
+            double values[SDI12_MAX_MEASUREMENTS];
+            uint8_t values_count;
+            uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
+            if (err != SDI12_GET_MEASUREMENT_OK) {
+                app_log("(SDI12_ERR_GET_MEASUREMENT %d) Error while getting measurements from sensor %d", (int[]){err, sensor_address});
+            } else {
+                uart_write_buf(LPUART1, "OK\n");
             }
-
-            for (uint8_t i = 0; i < byte_read; i++) {
-                uart_write_byte(LPUART1, sensor_response_buf[i]);
-            }
-            uart_write_byte(LPUART1, '\n');
         }
 
         // blink blue LED
