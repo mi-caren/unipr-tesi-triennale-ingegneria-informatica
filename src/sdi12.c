@@ -103,7 +103,7 @@ uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len,
     return SDI12_GET_SENSOR_RESPONSE_OK;
 }
 
-uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, double *measurements, uint8_t *received_measurement_count) {
+uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *measurements, uint8_t *received_measurement_count) {
     uint8_t err;
 
     sdi12_wake_up(uart);
@@ -153,14 +153,29 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, double *measureme
 
         while (*send_data_res_buf != '\r') {
             struct Sdi12Value value = sdi12_parse_next_value(send_data_res_buf);
-            measurements[*received_measurement_count] = 0;
-            for (uint8_t digits_idx = 0; digits_idx < value.non_decimal_digits_count; digits_idx++) {
-                measurements[*received_measurement_count] += value.non_decimal_digits[digits_idx]*power(10, value.non_decimal_digits_count - 1 - digits_idx);
+            // measurements[*received_measurement_count] = 0;
+            // for (uint8_t digits_idx = 0; digits_idx < value.non_decimal_digits_count; digits_idx++) {
+            //     measurements[*received_measurement_count] += value.non_decimal_digits[digits_idx]*power(10, value.non_decimal_digits_count - 1 - digits_idx);
+            // }
+            // for (uint8_t digits_idx = 0; digits_idx < value.decimal_digits_count; digits_idx++) {
+            //     measurements[*received_measurement_count] += value.decimal_digits[digits_idx]*power(10, -(digits_idx + 1));
+            // }
+            // measurements[*received_measurement_count] *= value.polarity_sign;
+            measurements[*received_measurement_count].value = 0;
+            measurements[*received_measurement_count].decimal_count = 0;
+            uint8_t digits_idx = 0;
+            uint8_t total_digitis_count = value.non_decimal_digits_count + value.decimal_digits_count;
+            while (digits_idx < value.non_decimal_digits_count) {
+                measurements[*received_measurement_count].value +=
+                    value.non_decimal_digits[digits_idx]*power(10, total_digitis_count - 1 - digits_idx);
+                digits_idx++;
             }
-            for (uint8_t digits_idx = 0; digits_idx < value.decimal_digits_count; digits_idx++) {
-                measurements[*received_measurement_count] += value.decimal_digits[digits_idx]*power(10, -(digits_idx + 1));
+            while (digits_idx < total_digitis_count) {
+                measurements[*received_measurement_count].value +=
+                    value.decimal_digits[digits_idx - value.non_decimal_digits_count]*power(10, total_digitis_count - 1 - digits_idx);
+                digits_idx++;
             }
-            measurements[*received_measurement_count] *= value.polarity_sign;
+            measurements[*received_measurement_count].value *= value.polarity_sign;
             *received_measurement_count++;
         }
 

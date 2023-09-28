@@ -114,14 +114,9 @@ void cpu_timers_clean() {
     timers_count = 0;
 }
 
-double power(uint8_t base, int8_t exp) {
+uint32_t power(uint8_t base, uint8_t exp) {
     if (exp == 0) {
         return 1;
     }
-
-    if (exp >= 1) {
-        return base*power(base, exp - 1);
-    } else {
-        return 1/power(base, -(exp));
-    }
+    return base*power(base, exp - 1);
 }

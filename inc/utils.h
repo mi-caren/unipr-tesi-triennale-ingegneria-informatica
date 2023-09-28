@@ -12,6 +12,11 @@ struct CpuTimer {
 	unsigned int current_value;
 };
 
+struct Float {
+    uint32_t value;
+    uint8_t decimal_count;
+};
+
 enum Error {
     ERROR_WRONG_PERIPHERAL = 1,
     ERROR_WRONG_REGISTER,
@@ -30,6 +35,6 @@ uint8_t cpu_timer_get_timers_count();
 void cpu_timer_tick(uint8_t index);
 void cpu_timer_remove(struct CpuTimer *cpu_timer);
 void cpu_timers_clean();
-double power(uint8_t base, int8_t exp);
+uint32_t power(uint8_t base, uint8_t exp);
 
 #endif

@@ -43,7 +43,7 @@ int main(void) {
     while (1) {
         if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
             uint8_t sensor_address = 0;
-            double values[SDI12_MAX_MEASUREMENTS];
+            struct Float values[SDI12_MAX_MEASUREMENTS];
             uint8_t values_count;
             uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
             if (err != SDI12_GET_MEASUREMENT_OK) {
@@ -51,6 +51,17 @@ int main(void) {
             } else {
                 uart_write_buf(LPUART1, "OK\n");
             }
+
+            // struct Uart *uart = USART1;
+            // uint8_t addr = sensor_address;
+            // uint8_t err;
+
+            // sdi12_wake_up(uart);
+
+            // err = sdi12_send_command(uart, addr, SDI12_CMD_START_MEASUREMENT);
+            // if (err != SDI12_SEND_COMMAND_OK) {
+            //     app_log("(SDI12_ERR %d) Error while getting measurements from sensor %d", (int[]){err, addr});
+            // }
         }
 
         // blink blue LED
@@ -79,7 +90,7 @@ void systick_handler(void) {
         cpu_timer_tick(i);
     }
 
-    monitor_pin(GPIOA, GPIO_PIN_9);
+    // monitor_pin(GPIOA, GPIO_PIN_9);
 }
 
 void monitor_pin(struct gpio *gpio, uint8_t pin) {
