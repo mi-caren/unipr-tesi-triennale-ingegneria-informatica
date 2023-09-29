@@ -134,7 +134,6 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
     if (wake_up_sensor) sdi12_wake_up(uart);
     char cmd_send_data[] = SDI12_CMD_SEND_DATA;
     uint8_t measurement_number = start_measurement_res_buf[4] - 0x30;
-    // float measurements[measurement_number];
     *received_measurement_count = 0;
 
     for (uint8_t data_block = 0; data_block < SDI12_MAX_DATA_BLOCKS; data_block++) {
@@ -151,8 +150,9 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
             return SDI12_ERR_GET_MEASUREMENT_GET_RES_SEND_DATA;
         }
 
-        while (*send_data_res_buf != '\r') {
-            struct Sdi12Value value = sdi12_parse_next_value(send_data_res_buf);
+        char *buf_ptr = send_data_res_buf + 1;
+        while (*buf_ptr != '\r') {
+            struct Sdi12Value value = sdi12_parse_next_value(&buf_ptr);
             // measurements[*received_measurement_count] = 0;
             // for (uint8_t digits_idx = 0; digits_idx < value.non_decimal_digits_count; digits_idx++) {
             //     measurements[*received_measurement_count] += value.non_decimal_digits[digits_idx]*power(10, value.non_decimal_digits_count - 1 - digits_idx);
@@ -174,9 +174,10 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
                 measurements[*received_measurement_count].value +=
                     value.decimal_digits[digits_idx - value.non_decimal_digits_count]*power(10, total_digitis_count - 1 - digits_idx);
                 digits_idx++;
+                measurements[*received_measurement_count].decimal_count++;
             }
             measurements[*received_measurement_count].value *= value.polarity_sign;
-            *received_measurement_count++;
+            (*received_measurement_count)++;
         }
 
         if (*received_measurement_count >= measurement_number) break;
@@ -185,34 +186,34 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
     return SDI12_GET_MEASUREMENT_OK;
 }
 
-struct Sdi12Value sdi12_parse_next_value(char *buf) {
+struct Sdi12Value sdi12_parse_next_value(char **buf) {
     struct Sdi12Value sdi12_value = {
         .non_decimal_digits_count = 0,
         .decimal_digits_count = 0
     };
 
-    if (*buf != '+' && *buf != '-') {
+    if (**buf != '+' && **buf != '-') {
         sdi12_value.error_code = SDI12_ERR_PARSE_NEXT_VALUE_POLARITY_SIGN;
         return sdi12_value;
     }
 
-    sdi12_value.polarity_sign = *buf == '+' ? 1 : -1;
-    buf++;
+    sdi12_value.polarity_sign = **buf == '+' ? 1 : -1;
+    (*buf)++;
 
     bool decimal_part = false;
-    while (*buf != '+' && *buf != '-' && *buf != '\r') {
-        if (*buf == '.') {
+    while (**buf != '+' && **buf != '-' && **buf != '\r') {
+        if (**buf == '.') {
             decimal_part = true;
         } else {
             if (decimal_part) {
-                sdi12_value.decimal_digits[sdi12_value.decimal_digits_count] = *buf - 0x30;
+                sdi12_value.decimal_digits[sdi12_value.decimal_digits_count] = **buf - 0x30;
                 sdi12_value.decimal_digits_count++;
             } else {
-                sdi12_value.non_decimal_digits[sdi12_value.non_decimal_digits_count] = *buf - 0x30;
+                sdi12_value.non_decimal_digits[sdi12_value.non_decimal_digits_count] = **buf - 0x30;
                 sdi12_value.non_decimal_digits_count++;
             }
         }
-        buf++;
+        (*buf)++;
     }
     return sdi12_value;
 }

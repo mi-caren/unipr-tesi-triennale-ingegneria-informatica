@@ -57,7 +57,7 @@ uint8_t sdi12_send_command(struct Uart *uart, uint8_t addr, char *cmd);
 uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len, uint8_t addr, bool check_short_res);
 // uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, double *measurements, uint8_t *received_measurement_count);
 uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *measurements, uint8_t *received_measurement_count);
-struct Sdi12Value sdi12_parse_next_value(char *buf);
+struct Sdi12Value sdi12_parse_next_value(char **buf);
 bool sdi12_received_service_request(struct Uart *uart, uint8_t addr);
 
 #endif

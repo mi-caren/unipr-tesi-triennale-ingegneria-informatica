@@ -48,20 +48,15 @@ int main(void) {
             uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
             if (err != SDI12_GET_MEASUREMENT_OK) {
                 app_log("(SDI12_ERR_GET_MEASUREMENT %d) Error while getting measurements from sensor %d", (int[]){err, sensor_address});
-            } else {
-                uart_write_buf(LPUART1, "OK\n");
+                continue;
             }
 
-            // struct Uart *uart = USART1;
-            // uint8_t addr = sensor_address;
-            // uint8_t err;
-
-            // sdi12_wake_up(uart);
-
-            // err = sdi12_send_command(uart, addr, SDI12_CMD_START_MEASUREMENT);
-            // if (err != SDI12_SEND_COMMAND_OK) {
-            //     app_log("(SDI12_ERR %d) Error while getting measurements from sensor %d", (int[]){err, addr});
-            // }
+            app_log("Received Values:", (int[]){});
+            for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
+                app_log("%d value: %d", (int[]){values_idx, values[values_idx].value});
+                app_log("%d decimal count: %d", (int[]){values_idx, values[values_idx].decimal_count});
+            }
+            uart_write_byte(LPUART1, '\n');
         }
 
         // blink blue LED
