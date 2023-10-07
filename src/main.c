@@ -34,7 +34,7 @@ int main(void) {
     // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
     cpu_timers_clean();
     struct CpuTimer *cpu_timer_blink = cpu_timer_new(2000);
-    struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(5000);
+    struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(10000);
 
     uart_write_buf(LPUART1, "\n\r");
     uart_write_buf(LPUART1, "App start");
@@ -57,9 +57,14 @@ int main(void) {
             }
 
             app_log("Received Values:", (int[]){});
+            // 0: ElectricalConductivity
+            // 1: Temperature
+            // 2: VolumetricWaterContent
             for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
-                app_log("%d value: %d", (int[]){values_idx, values[values_idx].value});
-                app_log("%d decimal count: %d", (int[]){values_idx, values[values_idx].decimal_count});
+                app_log("%d: %d.%d", (int[]){
+                    values_idx,
+                    values[values_idx].value / power(10, values[values_idx].decimal_count),
+                    values[values_idx].value % power(10, values[values_idx].decimal_count) });
             }
             uart_write_byte(LPUART1, '\n');
         }
