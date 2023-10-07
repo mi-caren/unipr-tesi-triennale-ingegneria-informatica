@@ -6,7 +6,7 @@
 
 #define MEM_OFFSET(base, offset)     *( (volatile uint32_t *) (base + offset) )
 
-#define DEBUG
+// #define DEBUG
 
 
 // millisecond timer made with software

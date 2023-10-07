@@ -22,9 +22,6 @@ uint32_t systick_ovf_per_sec;
 
 int main(void) {
     rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
-    #ifdef DEBUG
-        gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
-    #endif
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
     // Initialize LPUART to communicate with serial terminal
@@ -42,6 +39,11 @@ int main(void) {
     uart_write_buf(LPUART1, "\n\r");
     uart_write_buf(LPUART1, "App start");
     uart_write_buf(LPUART1, "\n\r");
+
+    #ifdef DEBUG
+        gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
+        gpio_set_mode(GPIOB, GPIO_PIN_4, GPIO_MODE_OUTPUT);
+    #endif
 
     while (1) {
         if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
@@ -66,14 +68,6 @@ int main(void) {
         if (cpu_timer_wait(cpu_timer_blink)) {
             gpio_write(GPIOB, GPIO_PIN_15, !gpio_read(GPIOB, GPIO_PIN_15));
         }
-
-        #ifdef DEBUG
-            if ((USART1->ISR & UART_ISR_BIT_BUSY) != 0) {
-                gpio_write(GPIOB, GPIO_PIN_2, HIGH);
-            } else {
-                gpio_write(GPIOB, GPIO_PIN_2, LOW);
-            }
-        #endif
     }
 
     return 0;

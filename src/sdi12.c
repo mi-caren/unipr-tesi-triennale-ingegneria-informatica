@@ -33,7 +33,7 @@ void sdi12_init(struct Uart *uart) {
 
         uart->CR2 &= ~(UART_CR2_BIT_STOP1 | UART_CR2_BIT_STOP0); // 1 stop bit
 
-        uart->CR1 |= UART_CR1_BIT_UE | UART_CR1_BIT_TE | UART_CR1_BIT_RE;
+        uart->CR1 |= UART_CR1_BIT_UE | UART_CR1_BIT_TE;
 
         gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
         // gpio_write(GPIOA, GPIO_PIN_9, LOW);
@@ -62,18 +62,20 @@ uint8_t sdi12_send_command(struct Uart *uart, uint8_t addr, char *cmd) {
     cmd[0] = addr + 0x30;
 
     if (uart == USART1) {
-        // gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
         uart_write_buf(uart, cmd);
     }
-    while (!uart_transmission_completed(uart)) { (void) 0; }
+    while(!uart_transmission_completed(uart)) { (void) 0; }
+    // uart->RQR |= UART_RQR_BIT_RXFRQ;
+    // uart->ICR |= UART_ICR_BIT_ORECF;
 
     return SDI12_SEND_COMMAND_OK;
 }
 
 uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len, uint8_t addr, bool check_short_res) {
-    struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(15);
+    struct CpuTimer *cpu_timer_sensor_response_timeout = cpu_timer_new(20);
 
     uint8_t i;
+    uart->CR1 |= UART_CR1_BIT_RE;
     for (i = 0; i < buf_len; i++) {
         while (!uart_data_received(uart)) {
             if (cpu_timer_wait(cpu_timer_sensor_response_timeout) == 1) {
@@ -82,16 +84,17 @@ uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len,
             }
         };
 
-        buf[i] = (uint8_t)uart_read_data(uart);
+        buf[i] = (uint8_t)uart_read_data(uart, 7);
         #ifdef DEBUG
-            uart_write_buf(LPUART1, int_to_string(buf[i]));
+            uart_write_byte(LPUART1, buf[i]);
             uart_write_buf(LPUART1, "\n\r");
         #endif
-        cpu_timer_init(cpu_timer_sensor_response_timeout, 2);
+        cpu_timer_reset(cpu_timer_sensor_response_timeout);
     }
 
     end_loop:
     cpu_timer_remove(cpu_timer_sensor_response_timeout);
+    uart->CR1 &= ~UART_CR1_BIT_RE;
 
     if (i == 0) {
         return SDI12_ERR_GET_SENSOR_RESPONSE_TIMEOUT;

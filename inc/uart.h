@@ -90,7 +90,16 @@ enum UartRegistersBits {
     UART_ISR_BIT_REACK          = 1 << 22,
 
     // ICR bits
+    UART_ICR_BIT_PECF           = 1 << 0,
+    UART_ICR_BIT_FECF           = 1 << 1,
+    UART_ICR_BIT_NECF           = 1 << 2,
+    UART_ICR_BIT_ORECF          = 1 << 3,
+    UART_ICR_BIT_IDLECF         = 1 << 4,
     UART_ICR_BIT_TCCF           = 1 << 6,
+    UART_ICR_BIT_LBDF           = 1 << 8,
+
+    // RQR bits
+    UART_RQR_BIT_RXFRQ          = 1 << 3,
 };
 
 enum UartErrors {
@@ -105,7 +114,7 @@ void uart_write_byte(struct Uart *uart, uint8_t byte);
 void uart_write_buf(struct Uart *uart, char *buf);
 bool uart_data_received(struct Uart *uart);
 bool uart_transmission_completed(struct Uart *uart);
-uint16_t uart_read_data(struct Uart *uart);
+uint16_t uart_read_data(struct Uart *uart, uint8_t wl);
 uint8_t uart_get_word_length(struct Uart *uart);
 
 #endif

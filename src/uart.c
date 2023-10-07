@@ -25,17 +25,11 @@ void uart_write_byte(struct Uart *uart, uint8_t byte) {
     }
 }
 
-uint16_t uart_read_data(struct Uart *uart) {
+uint16_t uart_read_data(struct Uart *uart, uint8_t wl) {
     if (!uart_data_received(uart)) {
         return UART_ERR_READ_DATA_NO_DATA;
     }
-
-    uint8_t wl = uart_get_word_length(uart);
-    if (wl == UART_ERR_GET_WL) {
-        return UART_ERR_READ_DATA_WL;
-    }
-
-    return uart->RDR & 0x1ff & (3 << wl);
+    return uart->RDR & 0x1ff & ~(3 << wl);
 }
 
 uint8_t uart_get_word_length(struct Uart *uart) {
@@ -64,12 +58,6 @@ void uart_write_buf(struct Uart *uart, char *buf) {
 
 bool uart_data_received(struct Uart *uart) {
     if ((uart->ISR & UART_ISR_BIT_RXNE) != 0) {
-        #ifdef DEBUG
-            uart_write_buf(LPUART1, "ciao un dato è stato ricevuto\n\r");
-            gpio_write(GPIOB, GPIO_PIN_1, HIGH);
-            delay(2);
-            gpio_write(GPIOB, GPIO_PIN_1, LOW);
-        #endif
         return true;
     }
     return false;
