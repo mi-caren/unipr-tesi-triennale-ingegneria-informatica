@@ -42,7 +42,7 @@ int main(void) {
 
     while (1) {
         if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
-            uint8_t sensor_address = 0;
+            uint8_t sensor_address = 1;
             struct Float values[SDI12_MAX_MEASUREMENTS];
             uint8_t values_count;
             uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
@@ -148,5 +148,5 @@ void app_log(char *buf, int *buf_values) {
         }
         buf++;
     }
-    uart_write_byte(LPUART1, '\n');
+    uart_write_buf(LPUART1, "\n\r");
 }

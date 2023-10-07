@@ -43,10 +43,10 @@ void sdi12_wake_up(struct Uart *uart) {
     if (uart == USART1) {
         gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_OUTPUT);
         gpio_write(GPIOA, GPIO_PIN_9, HIGH);
-        delay(12);
+        delay(16);
+        gpio_write(GPIOA, GPIO_PIN_9, LOW);
+        delay(10);
         gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
-        // gpio_write(GPIOA, GPIO_PIN_9, LOW);
-        delay(9);
     }
 }
 
@@ -108,7 +108,8 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
 
     sdi12_wake_up(uart);
 
-    err = sdi12_send_command(uart, addr, SDI12_CMD_START_MEASUREMENT);
+    char cmd[] = SDI12_CMD_START_MEASUREMENT;
+    err = sdi12_send_command(uart, addr, cmd);
     if (err != SDI12_SEND_COMMAND_OK) {
         return SDI12_ERR_GET_MEASUREMENT_SEND_START_MEAS_CMD;
     }
