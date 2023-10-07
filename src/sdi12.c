@@ -5,6 +5,10 @@
 #include "sdi12.h"
 
 void sdi12_init(struct Uart *uart) {
+    #ifdef DEBUG
+        gpio_set_mode(GPIOB, GPIO_PIN_1, GPIO_MODE_OUTPUT);
+    #endif
+
     if (uart == USART1) {
         RCC->APB2ENR |= RCC_APB2ENR2_BIT_USART1EN;
         RCC->AHB2ENR |= RCC_AHB2ENR_BIT_GPIOAEN;
@@ -23,9 +27,6 @@ void sdi12_init(struct Uart *uart) {
         uart->CR2 |= UART_CR2_BIT_TXINV | UART_CR2_BIT_RXINV; // negative logic
 
         uart->BRR = UART1_KER_CK_PRES / 1200;
-        
-        uart->CR1 &= ~(UART_CR1_BIT_M1 | UART_CR1_BIT_M0);
-        uart->CR1 |= UART_CR1_BIT_M1;   // set word length to 7
 
         uart->CR1 |= UART_CR1_BIT_PCE; // parity control enabled
         uart->CR1 &= ~(UART_CR1_BIT_PS); // even parity
@@ -64,6 +65,7 @@ uint8_t sdi12_send_command(struct Uart *uart, uint8_t addr, char *cmd) {
         // gpio_set_mode(GPIOA, GPIO_PIN_9, GPIO_MODE_ALTERNATE_FUNCTION);
         uart_write_buf(uart, cmd);
     }
+    while (!uart_transmission_completed(uart)) { (void) 0; }
 
     return SDI12_SEND_COMMAND_OK;
 }
@@ -81,6 +83,10 @@ uint8_t sdi12_get_sensor_response(struct Uart *uart, char *buf, uint8_t buf_len,
         };
 
         buf[i] = (uint8_t)uart_read_data(uart);
+        #ifdef DEBUG
+            uart_write_buf(LPUART1, int_to_string(buf[i]));
+            uart_write_buf(LPUART1, "\n\r");
+        #endif
         cpu_timer_init(cpu_timer_sensor_response_timeout, 2);
     }
 
@@ -117,6 +123,9 @@ uint8_t sdi12_get_measurement(struct Uart *uart, uint8_t addr, struct Float *mea
     char start_measurement_res_buf[SDI12_START_MEASUREMENT_RES_LEN];
     err = sdi12_get_sensor_response(uart, start_measurement_res_buf, SDI12_START_MEASUREMENT_RES_LEN, addr, true);
     if (err != SDI12_GET_SENSOR_RESPONSE_OK) {
+        #ifdef DEBUG
+            uart_write_byte(LPUART1, err + 0x30);
+        #endif
         return SDI12_ERR_GET_MEASUREMENT_GET_RES_START_MEAS;
     }
 

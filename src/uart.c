@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "gpio.h"
 #include "rcc.h"
+#include "utils.h"
 
 
 void uart_init(struct Uart *uart, uint32_t baud_rate) {
@@ -63,6 +64,20 @@ void uart_write_buf(struct Uart *uart, char *buf) {
 
 bool uart_data_received(struct Uart *uart) {
     if ((uart->ISR & UART_ISR_BIT_RXNE) != 0) {
+        #ifdef DEBUG
+            uart_write_buf(LPUART1, "ciao un dato è stato ricevuto\n\r");
+            gpio_write(GPIOB, GPIO_PIN_1, HIGH);
+            delay(2);
+            gpio_write(GPIOB, GPIO_PIN_1, LOW);
+        #endif
+        return true;
+    }
+    return false;
+}
+
+bool uart_transmission_completed(struct Uart *uart) {
+    if ((uart->ISR & UART_ISR_BIT_TC) != 0) {
+        // uart->ICR |= UART_ICR_BIT_TCCF;
         return true;
     }
     return false;

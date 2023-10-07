@@ -6,6 +6,9 @@
 
 #define MEM_OFFSET(base, offset)     *( (volatile uint32_t *) (base + offset) )
 
+#define DEBUG
+
+
 // millisecond timer made with software
 struct CpuTimer {
     unsigned int reset_value;
