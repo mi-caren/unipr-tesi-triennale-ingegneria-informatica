@@ -60,6 +60,7 @@ int main(void) {
             // 0: ElectricalConductivity
             // 1: Temperature
             // 2: VolumetricWaterContent
+            // TTN test: 02 C9 FD 02 | 00 01 1A 01 | 00 00 00 00
             for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
                 app_log("%d: %d.%d", (int[]){
                     values_idx,
