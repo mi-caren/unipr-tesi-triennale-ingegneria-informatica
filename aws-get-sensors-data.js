@@ -1,8 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  ScanCommand,
-  GetCommand,
+  ScanCommand
 } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({});
@@ -19,15 +18,101 @@ export const handler = async (event, context) => {
   };
 
   try {
+    let items;
     switch (event.routeKey) {
       case "GET /sensors-data/{device_id}":
-        body = await createHtmlPage(event.pathParameters.device_id);
-        break;
-      case "GET /sensors-data":
-        body = await dynamo.send(
+        items = await dynamo.send(
           new ScanCommand({ TableName: tableName })
         );
-        body = await createHtmlPage(1);
+        const data = formatData(items.Items, event.pathParameters.device_id);
+        body = `
+          <!doctype html>
+          <html lang="en">
+            <head><title>Sensors Data</title>
+            </head>
+            <body>
+              <div style="margin-left: 400px; margin-right: 400px;">
+                ${data.map((sensor) => `
+                  <h2>Sensor ${sensor.sensorAddress}</h2>
+                  <canvas style="padding-bottom: 50px" id="sensor-${sensor.sensorAddress}"></canvas>
+                `).join('')}
+              </div>
+              
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              
+              <script>
+                ${
+                  data.map((sensor) => `
+                    new Chart(document.getElementById('sensor-${sensor.sensorAddress}'), {
+                      type: 'line',
+                      data: {
+                        datasets: [{
+                          yAxisID: 'Conductivity',
+                          label: 'Conductivity',
+                          data: [${
+                            sensor.data.map((measurement) => JSON.stringify({
+                                x: formatDate(measurement.receivedAt),
+                                y: measurement.conductivity
+                              })).join(',')
+                          }],
+                          borderWidth: 1
+                        },
+                        {
+                          yAxisID: 'Temperature',
+                          label: 'Temperature',
+                          data: [${
+                            sensor.data.map((measurement) => JSON.stringify({
+                              x: formatDate(measurement.receivedAt),
+                              y: measurement.temperature
+                            })).join(',')
+                          }],
+                          borderWidth: 1
+                        },
+                        {
+                          yAxisID: 'Water Content',
+                          label: 'Water Content',
+                          data: [${
+                            sensor.data.map((measurement) => JSON.stringify({
+                              x: formatDate(measurement.receivedAt),
+                              y: measurement.waterContent
+                            })).join(',')
+                          }],
+                          borderWidth: 1
+                        }]
+                      },
+                      options: {
+                        scales: {
+                          // xAxis: {
+                          //   type: 'time'
+                          // }
+                        }
+                      }
+                    });
+                  `).join('')
+                }
+              </script>
+            </body>
+          </html>`;
+        break;
+      case "GET /sensors-data":
+        items = await dynamo.send(
+          new ScanCommand({ TableName: tableName })
+        );
+        const devices = retrieveDeviceIds(items.Items);
+        body = `
+          <!doctype html>
+          <html lang="en">
+            <head><title>Devices</title>
+            </head>
+            <body>
+              <div style="display: flex; flex-direction: column; align-items: center; margin-top: 50px;">
+                ${
+                  devices.map((dev) => `<a href="https://g9p3o6ac64.execute-api.eu-central-1.amazonaws.com/sensors-data/${dev}">${dev}</a>`).join('')
+                }
+              </div>
+            </body>
+          </html>
+        `;
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
@@ -35,10 +120,8 @@ export const handler = async (event, context) => {
   } catch (err) {
     statusCode = 400;
     body = err.message;
-  } finally {
-    body = JSON.stringify(body);
   }
-
+  
   return {
     statusCode,
     body,
@@ -46,34 +129,20 @@ export const handler = async (event, context) => {
   };
 };
 
-async function createHtmlPage(deviceId) {
-  let items = await dynamo.send(
-    new ScanCommand({ TableName: tableName })
-  );
-  items = items.Items.filter((item) => item.device_id == deviceId);
+function formatData(inputItems, deviceId) {
+  const items = inputItems.filter((item) => item.device_id == deviceId);
   
-  let res = [];
-  let canvasElements = '';
+  const res = [];
 
   items.forEach((item) => {
-    let device = res.find((dev) => dev.deviceId == item.device_id);
-    if (!device) {
-      device = {
-        deviceId: item.device_id,
-        data: []
-      };
-      
-      res.push(device);
-    }
-    
     Object.values(item.device_data.payload).forEach((sensorData) => {
-      let sensor = device.data.find((sens) => sens.sensorAddress == sensorData.sensorAddress);
+      let sensor = res.find((sens) => sens.sensorAddress == sensorData.sensorAddress);
       if (!sensor) {
         sensor = {
           sensorAddress: sensorData.sensorAddress,
           data: []
         };
-        device.data.push(sensor);
+        res.push(sensor);
       }
       sensor.data.push({
         conductivity: sensorData.conductivity,
@@ -83,49 +152,27 @@ async function createHtmlPage(deviceId) {
       });
     });
   });
-  return res;
   
-  return `
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <title>Sensors Data</title>
-      </head>
-      <body>
-        <div style="margin-left: 150px; margin-right: 150px;">
-          <canvas id="dataChart"></canvas>
-        </div>
-        
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        
-        <script>
-          const ctx = document.getElementById('dataChart');
-        
-          new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-              datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                borderWidth: 1
-              },
-              {
-                label: '# of Votes of another type',
-                data: [4, 1, 9, 12, 3, 3],
-                borderWidth: 1
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          });
-        </script>
-      </body>
-    </html>
-  `;
+  return res;
+}
+
+function retrieveDeviceIds(items) {
+  const devices = [];
+  items.forEach((item) => {
+    let device = devices.find((dev) => dev == item.device_id);
+    if (!device) {
+      device = item.device_id
+      devices.push(device);
+    }
+  });
+  return devices;
+}
+
+function formatDate(unformattedDate) {
+  const date = new Date(unformattedDate);
+  return date.getFullYear() + '-' +
+    String(date.getMonth()).padStart(2, '0') + '-' +
+    String(date.getDate()).padStart(2, '0') + ' ' +
+    String(date.getHours()).padStart(2, '0') + ':' +
+    String(date.getMinutes()).padStart(2, '0');
 }
