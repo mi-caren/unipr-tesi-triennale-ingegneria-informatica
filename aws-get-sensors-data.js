@@ -15,23 +15,19 @@ export const handler = async (event, context) => {
   let body;
   let statusCode = 200;
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "text/html",
   };
 
   try {
     switch (event.routeKey) {
       case "GET /sensors-data/{device_id}":
-        body = await dynamo.send(
-          new ScanCommand({ TableName: tableName })
-        );
-        const items = body.Items.filter((item) => item.device_id == event.pathParameters.device_id);
-        body = formatResponse(items);
+        body = await createHtmlPage(event.pathParameters.device_id);
         break;
       case "GET /sensors-data":
         body = await dynamo.send(
           new ScanCommand({ TableName: tableName })
         );
-        body = formatResponse(body.Items);
+        body = await createHtmlPage(1);
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
@@ -50,8 +46,15 @@ export const handler = async (event, context) => {
   };
 };
 
-function formatResponse(items) {
+async function createHtmlPage(deviceId) {
+  let items = await dynamo.send(
+    new ScanCommand({ TableName: tableName })
+  );
+  items = items.Items.filter((item) => item.device_id == deviceId);
+  
   let res = [];
+  let canvasElements = '';
+
   items.forEach((item) => {
     let device = res.find((dev) => dev.deviceId == item.device_id);
     if (!device) {
@@ -80,6 +83,49 @@ function formatResponse(items) {
       });
     });
   });
-  
   return res;
+  
+  return `
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <title>Sensors Data</title>
+      </head>
+      <body>
+        <div style="margin-left: 150px; margin-right: 150px;">
+          <canvas id="dataChart"></canvas>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+        <script>
+          const ctx = document.getElementById('dataChart');
+        
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+              datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                borderWidth: 1
+              },
+              {
+                label: '# of Votes of another type',
+                data: [4, 1, 9, 12, 3, 3],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        </script>
+      </body>
+    </html>
+  `;
 }
