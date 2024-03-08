@@ -17,12 +17,15 @@ CFLAGS += -I. -Iinc
 # ARM flags
 CFLAGS += -mcpu=cortex-m4 -mthumb
 
+# DEFINE HARDWARE
+CFLAGS += -imacros inc/hardware/mcu.h -D HARDWARE=STM32WL55JC
+
 CFLAGS += $(EXTRA_CFLAGS)
 
 #Linker flags
 LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
 
-SOURCES = src/*.c inc/hal/*.c
+SOURCES = src/*.c inc/hal/*.c inc/communication/*.c
 
 OPENOCD_INTERFACE = interface/stlink.cfg
 OPENOCD_TARGET = target/stm32wlx.cfg

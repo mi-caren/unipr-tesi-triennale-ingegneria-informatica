@@ -1,10 +1,10 @@
 #include "main.h"
 
+#include "communication/sdi12.h"
+#include "communication/uart.h"
 #include "hal/gpio.h"
 #include "hal/rcc.h"
-#include "uart.h"
 #include "utils.h"
-#include "sdi12.h"
 
 #include <stdint.h>
 
@@ -101,7 +101,7 @@ void systick_handler(void) {
     // monitor_pin(GPIOA, GPIO_PIN_9);
 }
 
-void monitor_pin(struct gpio *gpio, uint8_t pin) {
+void monitor_pin(Gpio *gpio, uint8_t pin) {
     static uint8_t pin_value = 0;
     static uint8_t pin_buf = 0;
     static uint8_t bit_counter = 7;

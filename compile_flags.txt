@@ -1,1 +1,3 @@
 -Iinc
+-imacros inc/hardware/mcu.h
+-DHARDWARE=STM32WL55JC

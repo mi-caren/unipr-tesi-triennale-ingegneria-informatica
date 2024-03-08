@@ -26,7 +26,7 @@ void systick_init(uint32_t ovf_per_sec);
 void app_log(char *buf, int *buf_values);
 
 
-void monitor_pin(struct gpio *gpio, uint8_t pin);
+void monitor_pin(Gpio *gpio, uint8_t pin);
 char int_to_hex_char(uint8_t n);
 
 #endif

@@ -3,37 +3,14 @@
 
 #include <stdint.h>
 
+#ifdef HARDWARE
 
-#define GPIO_MEM_ADDR		0x48000000
+#if HARDWARE == STM32WL55JC
+    #include "hardware/stm32wl55jc.h"
+#endif
 
-#define GPIOA_OFFSET		0x0000
-#define GPIOB_OFFSET		0x0400
+#endif
 
-#define GPIOA               ( ( struct gpio * ) ( GPIO_MEM_ADDR + GPIOA_OFFSET ) )
-#define GPIOB               ( ( struct gpio * ) ( GPIO_MEM_ADDR + GPIOB_OFFSET ) )
-
-
-struct gpio {
-    // configuration registers
-    volatile uint32_t MODER;
-    volatile uint32_t OTYPER;
-    volatile uint32_t OSPEEDR;
-    volatile uint32_t PUPDR;
-
-    // data registers
-    volatile uint32_t IDR;
-    volatile uint32_t ODR;
-
-    // set/reset register
-    volatile uint32_t BSRR;
-
-    // locking register
-    volatile uint32_t LCKR;
-
-    // alternate function registers
-    volatile uint32_t AFR[2];
-    volatile uint32_t BRR;
-};
 
 enum {
     GPIO_MODE_INPUT,
@@ -105,11 +82,11 @@ enum {
     HIGH
 };
 
-int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode);
+int gpio_set_mode(Gpio *gpio, uint8_t pin, uint8_t mode);
 
-int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af);
+int gpio_set_af(Gpio *gpio, uint8_t pin, uint8_t af);
 
-int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val);
-int8_t gpio_read(struct  gpio *gpio, uint8_t pin);
+int gpio_write(Gpio *gpio, uint8_t pin, uint8_t val);
+int8_t gpio_read(Gpio *gpio, uint8_t pin);
 
 #endif

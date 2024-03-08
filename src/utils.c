@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "uart.h"
+#include "communication/uart.h"
 #include "utils.h"
 
 #define MAX_NUMBER_OF_DIGITS		11

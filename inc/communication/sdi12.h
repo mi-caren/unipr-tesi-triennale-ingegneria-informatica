@@ -1,6 +1,9 @@
 #ifndef SDI12_H
 #define SDI12_H
 
+#include "uart.h"
+#include "utils.h"
+
 #include <inttypes.h>
 #include <stdbool.h>
 

@@ -3,7 +3,7 @@
 #include "gpio.h"
 
 
-int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode) {
+int gpio_set_mode(Gpio *gpio, uint8_t pin, uint8_t mode) {
     if (pin > 15) {
         return -1;
     }
@@ -17,7 +17,7 @@ int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode) {
     return 0;
 }
 
-int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
+int gpio_set_af(Gpio *gpio, uint8_t pin, uint8_t af) {
     if (pin > 15) {
         return -1;
     }
@@ -31,7 +31,7 @@ int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
     return 0;
 }
 
-int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val) {
+int gpio_write(Gpio *gpio, uint8_t pin, uint8_t val) {
     if (pin > 15) {
         return -1;
     }
@@ -44,7 +44,7 @@ int gpio_write(struct gpio *gpio, uint8_t pin, uint8_t val) {
 	return 0;
 }
 
-int8_t gpio_read(struct  gpio *gpio, uint8_t pin) {
+int8_t gpio_read(Gpio *gpio, uint8_t pin) {
     if (pin > 15) {
         return -1;
     }
