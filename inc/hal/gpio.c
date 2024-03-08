@@ -1,6 +1,6 @@
-#include <stdint.h>
-
 #include "gpio.h"
+
+#include <stdint.h>
 
 
 int gpio_set_mode(Gpio *gpio, uint8_t pin, uint8_t mode) {

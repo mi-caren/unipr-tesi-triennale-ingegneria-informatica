@@ -1,8 +1,6 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include <stdint.h>
-
 #ifdef HARDWARE
 
 #if HARDWARE == STM32WL55JC
@@ -10,6 +8,8 @@
 #endif
 
 #endif
+
+#include <stdint.h>
 
 
 enum {
