@@ -2,3 +2,4 @@
 *.elf
 *.elf.map
 cscope*
+.cache

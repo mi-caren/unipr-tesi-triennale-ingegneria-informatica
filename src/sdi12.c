@@ -1,6 +1,6 @@
 #include "uart.h"
-#include "rcc.h"
-#include "gpio.h"
+#include "hal/rcc.h"
+#include "hal/gpio.h"
 #include "utils.h"
 #include "sdi12.h"
 

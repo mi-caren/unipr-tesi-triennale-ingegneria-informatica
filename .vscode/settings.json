@@ -2,6 +2,8 @@
   "files.associations": {
     "*.embeddedhtml": "html",
     "*.asm": "asm-intel-x86-generic",
-    "rcc.h": "c"
+    "rcc.h": "c",
+    "main.h": "c",
+    "gpio.h": "c"
   }
 }

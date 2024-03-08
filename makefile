@@ -4,7 +4,7 @@ CFLAGS  ?=  -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion \
             -g3 -Os -ffunction-sections -fdata-sections -I. -Iinc \
             -mcpu=cortex-m4 -mthumb $(EXTRA_CFLAGS)
 LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
-SOURCES = src/*.c
+SOURCES = src/*.c inc/hal/*.c
 
 OPENOCD_INTERFACE = interface/stlink.cfg
 OPENOCD_TARGET = target/stm32wlx.cfg

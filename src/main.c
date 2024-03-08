@@ -1,10 +1,9 @@
 #include <stdint.h>
 
 #include "main.h"
-#include "gpio.h"
-#include "rcc.h"
+#include "hal/gpio.h"
+#include "hal/rcc.h"
 #include "uart.h"
-#include "rcc.h"
 #include "utils.h"
 #include "sdi12.h"
 
@@ -105,7 +104,7 @@ void monitor_pin(struct gpio *gpio, uint8_t pin) {
     static uint8_t bit_counter = 7;
     static uint8_t row_counter = MONITOR_ROW_LENGTH;
     static uint8_t last_buf_read = 0;
-    static uint32_t identical_prints_count = 0;;
+    static uint32_t identical_prints_count = 0;
 
     pin_value = gpio_read(gpio, pin);
     pin_buf |= pin_value << bit_counter;

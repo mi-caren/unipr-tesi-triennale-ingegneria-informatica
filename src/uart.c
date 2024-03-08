@@ -1,7 +1,7 @@
 #include "uart.h"
 #include "utils.h"
-#include "gpio.h"
-#include "rcc.h"
+#include "hal/gpio.h"
+#include "hal/rcc.h"
 #include "utils.h"
 
 

@@ -2,7 +2,7 @@
 #define MAIN_H
 
 #include <stdint.h>
-#include "gpio.h"
+#include "hal/gpio.h"
 
 
 // address in memory where systick registers are mapped
