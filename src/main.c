@@ -1,12 +1,12 @@
-#include <stdint.h>
-
 #include "main.h"
+
 #include "hal/gpio.h"
 #include "hal/rcc.h"
 #include "uart.h"
 #include "utils.h"
 #include "sdi12.h"
 
+#include <stdint.h>
 
 #define MONITOR_ROW_LENGTH                  32
 #define MAX_CONSEC_IDENTICAL_PRINTS         8
