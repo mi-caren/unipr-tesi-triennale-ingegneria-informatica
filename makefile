@@ -1,9 +1,27 @@
-CFLAGS  ?=  -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion \
-            -Wformat-truncation -Wno-unused-value -Wno-unused-variable \
-			-Wno-unused-parameter -Wno-unused-but-set-variable -fno-common \
-            -g3 -Os -ffunction-sections -fdata-sections -I. -Iinc \
-            -mcpu=cortex-m4 -mthumb $(EXTRA_CFLAGS)
+# Flags are set following advices of: https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags
+# Most of other flags are taken from tutorial: https://github.com/cpq/bare-metal-programming-guide
+
+CFLAGS = -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion
+# CFLAGS += -Wpadded			# Check if there are some padded structs. Useful only if I really want to optimize performance by reducing struct size
+# CFLAGS += -Wconversion	# Warnings for implicit conversions in arithmetic operations and assignments
+CFLAGS += -Wformat=2 -Wformat-truncation
+CFLAGS += -Wundef 			# To identify undefined macros silently evaluating as 0
+CFLAGS += -fno-common		# Identify duplicate global variables
+
+# DEBUF FLAGS
+CFLAGS += -g3 -Os -ffunction-sections -fdata-sections
+
+# Include Flags
+CFLAGS += -I. -Iinc
+
+# ARM flags
+CFLAGS += -mcpu=cortex-m4 -mthumb
+
+CFLAGS += $(EXTRA_CFLAGS)
+
+#Linker flags
 LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
+
 SOURCES = src/*.c inc/hal/*.c
 
 OPENOCD_INTERFACE = interface/stlink.cfg

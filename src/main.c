@@ -61,10 +61,13 @@ int main(void) {
             // 2: VolumetricWaterContent
             // TTN test: 01 | 02 C9 FD 02 | 00 01 1A 01 | 00 00 00 00
             for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
-                app_log("%d: %d.%d", (int[]){
-                    values_idx,
-                    values[values_idx].value / power(10, values[values_idx].decimal_count),
-                    values[values_idx].value % power(10, values[values_idx].decimal_count) });
+                app_log("%d: %d.%d",
+                    (int[]){
+                        values_idx,
+                        (int)(values[values_idx].value / power(10, values[values_idx].decimal_count)),
+                        (int)(values[values_idx].value % power(10, values[values_idx].decimal_count))
+                    }
+                );
             }
             uart_write_byte(LPUART1, '\n');
         }
