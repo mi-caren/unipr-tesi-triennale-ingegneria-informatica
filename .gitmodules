@@ -6,3 +6,7 @@
 	path = inc/hal/communication
 	url = micaren.org:repos/libs/lowlevel/hal/communication.git
 	branch = 1.0
+[submodule "inc/hal/hardware"]
+	path = inc/hal/hardware
+	url = micaren.org:repos/libs/lowlevel/hal/hardware.git
+	branch = 1.0
