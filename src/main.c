@@ -1,9 +1,9 @@
 #include "main.h"
 
-#include "communication/sdi12.h"
-#include "communication/uart.h"
-#include "hal/gpio.h"
-#include "hal/rcc.h"
+#include "hal/communication/sdi12.h"
+#include "hal/communication/uart.h"
+#include "hal/core/gpio.h"
+#include "hal/core/rcc.h"
 #include "utils.h"
 
 #include <stdint.h>

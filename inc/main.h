@@ -1,8 +1,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "hal/core/gpio.h"
+
 #include <stdint.h>
-#include "hal/gpio.h"
 
 
 // address in memory where systick registers are mapped

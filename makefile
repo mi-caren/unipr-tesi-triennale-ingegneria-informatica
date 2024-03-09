@@ -25,7 +25,9 @@ CFLAGS += $(EXTRA_CFLAGS)
 #Linker flags
 LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
 
-SOURCES = src/*.c inc/hal/*.c inc/communication/*.c
+SOURCES = src/*.c
+SOURCES += inc/hal/core/*.c
+SOURCES += inc/hal/communication/*.c
 
 OPENOCD_INTERFACE = interface/stlink.cfg
 OPENOCD_TARGET = target/stm32wlx.cfg
