@@ -11,21 +11,18 @@ CFLAGS += -Wformat=2 -Wformat-truncation
 CFLAGS += -Wundef
 # Identify duplicate global variables
 CFLAGS += -fno-common
-
 # DEBUF FLAGS
 CFLAGS += -g3 -Os -ffunction-sections -fdata-sections
-
 # ARM flags
 CFLAGS += -mcpu=cortex-m4 -mthumb
-
-# DEFINE HARDWARE
-DEF = -imacros inc/hal/hardware/mcu.h -D HARDWARE=STM32WL55JC
-
 CFLAGS += $(EXTRA_CFLAGS)
 
 #Linker flags
-LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
+LDFLAGS = -Tlink.ld -nostartfiles --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
+# LDFLAGS += -nostdlib
 
+# DEFINE HARDWARE
+DEF = -imacros inc/hal/hardware/mcu.h -D HARDWARE=STM32WL55JC
 # Include Flags
 INC = -I. -Iinc
 
@@ -43,14 +40,15 @@ OPENOCD_FALSH_CMDS += -c "reset"
 OPENOCD_FALSH_CMDS += -c "shutdown"
 
 
-SRCS = $(shell find src inc -name '*.c')
+MAIN_SRCS = $(shell find src -name '*.c')
+CORE_SRCS = $(shell find inc/hal/core -name '*.c')
+COMM_SRCS = $(shell find inc/hal/communication -name '*.c')
 
-OBJS = $(patsubst src/%.c,bin/%.o,$(SRCS))
-OBJS += $(patsubst inc/hal/core/%.c,bin/%.o,$(SRCS))
-OBJS += $(patsubst inc/hal/communication/%.c,bin/%.o,$(SRCS))
+OBJS = $(patsubst src/%.c,bin/%.o,$(MAIN_SRCS))
+OBJS += $(patsubst inc/hal/core/%.c,bin/%.o,$(CORE_SRCS))
+OBJS += $(patsubst inc/hal/communication/%.c,bin/%.o,$(COMM_SRCS))
 
 build: bin/firmware.bin
-	echo $(OBJS)
 
 flash: build
 	openocd -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) $(OPENOCD_TRANSPORT) $(OPENOCD_FALSH_CMDS)
@@ -59,14 +57,29 @@ bin/firmware.bin: bin/firmware.elf
 	arm-none-eabi-objcopy -O binary $< $@
 
 bin/firmware.elf: $(OBJS)
-	$(CC) $(LDFLAGS) $? -o $@
+	@echo "Linking..."
+	$(CC) $(LDFLAGS) $(OBJS) -o $@
+	@echo
 
-bin/%.o: $(SRCS)
-	$(CC) $(CFLAGS) -c $< -o $@
+bin/%.o: src/%.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
+	@echo
 
+# Maybe this followings can be included in a makefile in the lib
+bin/%.o: inc/hal/core/%.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
+	@echo
 
-# firmware.elf: $(SOURCES)
-# 	arm-none-eabi-gcc $(SOURCES) $(CFLAGS) $(LDFLAGS) -o $@
+bin/%.o: inc/hal/communication/%.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
+	@echo
+
+test:
+	@echo "srcs: $(MAIN_SRCS) $(CORE_SRCS) $(COMM_SRCS)"
+	@echo "objs: $(OBJS)"
 
 log:
 	cu -l /dev/ttyACM0 -s 115200 -t
