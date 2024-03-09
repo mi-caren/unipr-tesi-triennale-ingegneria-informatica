@@ -2,3 +2,7 @@
 	path = inc/hal/core
 	url = micaren.org:repos/libs/lowlevel/hal/core.git
 	branch = 1.0
+[submodule "inc/hal/communication"]
+	path = inc/hal/communication
+	url = micaren.org:repos/libs/lowlevel/hal/communication.git
+	branch = 1.0
