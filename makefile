@@ -15,16 +15,10 @@ CFLAGS += -fno-common
 CFLAGS += -g3 -Os -ffunction-sections -fdata-sections
 # ARM flags
 CFLAGS += -mcpu=cortex-m4 -mthumb
-CFLAGS += $(EXTRA_CFLAGS)
 
 #Linker flags
 LDFLAGS = -Tlink.ld -nostartfiles --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
 # LDFLAGS += -nostdlib
-
-# DEFINE HARDWARE
-DEF = -imacros inc/hal/hardware/mcu.h -D HARDWARE=STM32WL55JC
-# Include Flags
-INC = -I. -Iinc
 
 
 OPENOCD_INTERFACE = interface/stlink.cfg
@@ -40,13 +34,25 @@ OPENOCD_FALSH_CMDS += -c "reset"
 OPENOCD_FALSH_CMDS += -c "shutdown"
 
 
-MAIN_SRCS = $(shell find src -name '*.c')
-CORE_SRCS = $(shell find inc/hal/core -name '*.c')
-COMM_SRCS = $(shell find inc/hal/communication -name '*.c')
+# DEFINE HARDWARE
+DEF = -imacros inc/hal/hardware/mcu.h -D HARDWARE=STM32WL55JC
+# Include Flags
+INC = -I. -Iinc
 
+CFLAGS += $(DEF)
+CFLAGS += $(INC)
+
+
+include inc/hal/core/makefile
+include inc/hal/communication/makefile
+
+
+MAIN_SRCS = $(shell find src -name '*.c')
 OBJS = $(patsubst src/%.c,bin/%.o,$(MAIN_SRCS))
-OBJS += $(patsubst inc/hal/core/%.c,bin/%.o,$(CORE_SRCS))
-OBJS += $(patsubst inc/hal/communication/%.c,bin/%.o,$(COMM_SRCS))
+
+OBJS += $(LIB_HAL_CORE_OBJS)
+OBJS += $(LIB_HAL_COMMUNICATION_OBJS)
+
 
 build: bin/firmware.bin
 
@@ -63,22 +69,11 @@ bin/firmware.elf: $(OBJS)
 
 bin/%.o: src/%.c
 	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
-	@echo
-
-# Maybe this followings can be included in a makefile in the lib
-bin/%.o: inc/hal/core/%.c
-	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
-	@echo
-
-bin/%.o: inc/hal/communication/%.c
-	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) $(INC) $(DEF) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	@echo
 
 test:
-	@echo "srcs: $(MAIN_SRCS) $(CORE_SRCS) $(COMM_SRCS)"
+	@echo "srcs: $(MAIN_SRCS) $(LIB_HAL_CORE_SRCS) $(LIB_HAL_COMMUNICATION_SRCS)"
 	@echo "objs: $(OBJS)"
 
 log:
