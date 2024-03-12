@@ -20,7 +20,7 @@ uint32_t systick_ovf_per_sec;
 
 
 int main(void) {
-    rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
+    rcc_gpio_ck_enable(GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
     // Initialize LPUART to communicate with serial terminal
@@ -39,10 +39,10 @@ int main(void) {
     uart_write_buf(LPUART1, "App start");
     uart_write_buf(LPUART1, "\n\r");
 
-    #ifdef DEBUG
-        gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
-        gpio_set_mode(GPIOB, GPIO_PIN_4, GPIO_MODE_OUTPUT);
-    #endif
+#ifdef DEBUG
+    gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
+    gpio_set_mode(GPIOB, GPIO_PIN_4, GPIO_MODE_OUTPUT);
+#endif
 
     while (1) {
         if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
@@ -99,6 +99,25 @@ void systick_handler(void) {
     }
 
     // monitor_pin(GPIOA, GPIO_PIN_9);
+}
+
+// potrei impacchettare questi 3 valori in una struct
+void error_handler(Error err) {
+    switch (err.env) {
+        case HAL_CORE_RCC_ENV:
+            uart_write_buf(LPUART1, "Error from lib/lowlevel/hal/core/rcc");
+            uart_write_buf(LPUART1, err.message);
+            switch (err.origin) {
+                case GPIO_CK_EN:
+                default:
+                    while (1) (void) 0;
+            }
+            break;
+        default:
+            app_log("Unreconized error environment: %d", (int[]){err.env});
+            while (1) (void) 0;
+            break;
+    }
 }
 
 void monitor_pin(Gpio *gpio, uint8_t pin) {

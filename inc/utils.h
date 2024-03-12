@@ -1,6 +1,14 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#ifdef HARDWARE
+
+#if HARDWARE == STM32WL55JC
+    #include "hal/hardware/stm32wl55jc.h"
+#endif
+
+#endif
+
 #include <stdint.h>
 
 
@@ -20,11 +28,19 @@ struct Float {
     uint8_t decimal_count;
 };
 
-enum Error {
-    ERROR_WRONG_PERIPHERAL = 1,
-    ERROR_WRONG_REGISTER,
-    ERROR_UNKNOWN_PERIPHERAL
-};
+// enum Error {
+//     ERROR_WRONG_PERIPHERAL = 1,
+//     ERROR_WRONG_REGISTER,
+//     ERROR_UNKNOWN_PERIPHERAL
+// };
+
+
+typedef struct {
+    Env env;
+    int origin;
+    int code;
+    char *message;
+} Error;
 
 void spin(volatile uint32_t count);
 char* int_to_string(int n);

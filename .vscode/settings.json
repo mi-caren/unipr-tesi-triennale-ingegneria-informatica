@@ -4,6 +4,7 @@
     "*.asm": "asm-intel-x86-generic",
     "rcc.h": "c",
     "main.h": "c",
-    "gpio.h": "c"
+    "gpio.h": "c",
+    "stdint.h": "c"
   }
 }
