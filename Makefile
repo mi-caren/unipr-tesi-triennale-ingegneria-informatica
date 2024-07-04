@@ -1,10 +1,34 @@
-CFLAGS  ?=  -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion \
-            -Wformat-truncation -Wno-unused-value -Wno-unused-variable \
-			-Wno-unused-parameter -Wno-unused-but-set-variable -fno-common \
-            -g3 -Os -ffunction-sections -fdata-sections -I. -Iinc \
-            -mcpu=cortex-m4 -mthumb $(EXTRA_CFLAGS)
-LDFLAGS ?= -Tlink.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
-SOURCES = src/*.c
+CC = arm-none-eabi-gcc
+
+# Flags are set following advices of: https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags
+# Most of other flags are taken from tutorial: https://github.com/cpq/bare-metal-programming-guide
+
+CFLAGS = -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion
+# CFLAGS += -Wpadded                   # Check if there are some padded structs. Useful only if I really want to optimize performance by reducing struct size
+# CFLAGS += -Wconversion       # Warnings for implicit conversions in arithmetic operations and assignments
+CFLAGS += -Wformat=2 -Wformat-truncation
+CFLAGS += -Wno-unused-value -Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable
+# To identify undefined macros silently evaluating as 0
+CFLAGS += -Wundef
+# Identify duplicate global variables
+CFLAGS += -fno-common
+
+# DEBUF FLAGS
+CFLAGS += -g3 -Os -ffunction-sections -fdata-sections
+
+
+# ARM flags
+CFLAGS += -mcpu=cortex-m4 -mthumb
+
+CFLAGS += $(EXTRA_CFLAGS)
+
+#Linker flags
+LDFLAGS ?= -Tlink.ld -nostartfiles --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
+# LDFLAGS += -nostdlib
+# Include Flags
+INC += -I. -Iinc
+SRCS = $(shell find src -name '*.c')
+OBJS = $(patsubst src/%.c,bin/%.o,$(SRCS))
 
 OPENOCD_INTERFACE = interface/stlink.cfg
 OPENOCD_TARGET = target/stm32wlx.cfg
@@ -18,26 +42,28 @@ OPENOCD_FALSH_CMDS += -c "flash write_image erase firmware.elf"
 OPENOCD_FALSH_CMDS += -c "reset"
 OPENOCD_FALSH_CMDS += -c "shutdown"
 
-ifeq ($(OS),Windows_NT)
-  RM = cmd /C del /Q /F
-else
-  RM = rm -f
-endif
+
+build: bin/firmware.bin
+	@echo "Everything built!"
+
+bin/firmware.bin: bin/firmware.elf
+	@arm-none-eabi-objcopy -O binary $< $@
+
+bin/firmware.elf: $(OBJS)
+	@echo "Linking..."
+	@$(CC) $(LDFLAGS) $(OBJS) -o $@
+
+bin/%.o: src/%.c
+	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+flash: bin/firmware.bin
+	openocd -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) $(OPENOCD_TRANSPORT) $(OPENOCD_FALSH_CMDS)
+
 
 
 log:
 	cu -l /dev/ttyACM0 -s 115200 -t
 
-flash: build
-	openocd -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) $(OPENOCD_TRANSPORT) $(OPENOCD_FALSH_CMDS)
-
-build: firmware.bin
-
-firmware.elf: $(SOURCES)
-	arm-none-eabi-gcc $(SOURCES) $(CFLAGS) $(LDFLAGS) -o $@
-
-firmware.bin: firmware.elf
-	arm-none-eabi-objcopy -O binary $< $@
-
 clean:
-	$(RM) firmware.*
+	rm -f bin/*

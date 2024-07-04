@@ -22,7 +22,7 @@ struct systick {
 };
 
 
-void systick_init();
+void systick_init(uint32_t ovf_per_sec);
 void app_log(char *buf, int *buf_values);
 
 
