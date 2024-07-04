@@ -2,11 +2,10 @@
 
 #include "main.h"
 #include "gpio.h"
-#include "rcc.h"
 #include "uart.h"
-#include "rcc.h"
 #include "utils.h"
 #include "sdi12.h"
+#include "stm32wl55jc-cm4.h"
 
 
 #define MONITOR_ROW_LENGTH                  32
@@ -21,7 +20,10 @@ uint32_t systick_ovf_per_sec;
 
 
 int main(void) {
-    rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
+    GpioB* gpiob = takeGpioB();
+    Rcc* rcc = takeRcc();
+    rccSetRegisterBits(rcc, AHB2ENR, GPIOBEN);
+    // rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
     // Initialize LPUART to communicate with serial terminal

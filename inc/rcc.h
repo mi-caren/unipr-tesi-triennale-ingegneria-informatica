@@ -4,9 +4,7 @@
 #include <stdint.h>
 
 
-#define RCC_MEM_ADDR        0x58000000
-
-#define RCC                 ( ( struct rcc * ) RCC_MEM_ADDR )
+#define RCC                 ( ( struct rcc * ) 0x58000000 )
 
 
 struct rcc {

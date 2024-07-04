@@ -38,7 +38,7 @@ OPENOCD_TRANSPORT = -c 'transport select hla_swd'
 OPENOCD_TRANSPORT = -c "init"
 OPENOCD_FALSH_CMDS += -c "reset halt"
 OPENOCD_FALSH_CMDS += -c "sleep 10"
-OPENOCD_FALSH_CMDS += -c "flash write_image erase firmware.elf"
+OPENOCD_FALSH_CMDS += -c "flash write_image erase bin/firmware.elf"
 OPENOCD_FALSH_CMDS += -c "reset"
 OPENOCD_FALSH_CMDS += -c "shutdown"
 
