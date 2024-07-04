@@ -20,10 +20,9 @@ uint32_t systick_ovf_per_sec;
 
 
 int main(void) {
-    GpioB* gpiob = takeGpioB();
     Rcc* rcc = takeRcc();
-    rccSetRegisterBits(rcc, AHB2ENR, GPIOBEN);
-    // rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
+    GpioB* gpiob = takeGpioB(rcc);
+
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
     // Initialize LPUART to communicate with serial terminal
