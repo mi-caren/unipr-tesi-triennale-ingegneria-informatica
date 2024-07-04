@@ -35,7 +35,7 @@ int main(void) {
 
     // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
     cpu_timers_clean();
-    struct CpuTimer *cpu_timer_blink = cpu_timer_new(5000);
+    struct CpuTimer *cpu_timer_blink = cpu_timer_new(1000);
     struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(10000);
 
     uart_write_buf(LPUART1, "\n\r");

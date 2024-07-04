@@ -14,7 +14,10 @@ CFLAGS += -Wundef
 CFLAGS += -fno-common
 
 # DEBUF FLAGS
-CFLAGS += -g3 -Os -ffunction-sections -fdata-sections
+CFLAGS += -g3 -ffunction-sections -fdata-sections
+
+# optimize for size -> this is disabled because generates calls to memeset
+# CFLAGS += -Os
 
 
 # ARM flags
@@ -24,7 +27,7 @@ CFLAGS += $(EXTRA_CFLAGS)
 
 #Linker flags
 LDFLAGS ?= -Tlink.ld -nostartfiles --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map -Wl,--print-memory-usage
-# LDFLAGS += -nostdlib
+LDFLAGS += -nostdlib
 # Include Flags
 INC += -I. -Iinc
 SRCS = $(shell find src -name '*.c')
