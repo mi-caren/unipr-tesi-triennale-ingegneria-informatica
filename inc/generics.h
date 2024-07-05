@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef volatile uint32_t Reg;
+typedef volatile uint32_t* Register;
 
 
 

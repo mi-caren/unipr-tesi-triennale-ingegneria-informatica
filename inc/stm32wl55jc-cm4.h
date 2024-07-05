@@ -8,7 +8,7 @@
 
 
 typedef struct Peripherals {
-    GPIOB* const GPIOB;
+    GPIOB GPIOB;
 } Peripherals;
 
 Peripherals* takePeripherals();

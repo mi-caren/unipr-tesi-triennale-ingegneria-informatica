@@ -3,7 +3,7 @@
 
 // READABLE
 
-static GPIOB_MODER_MODE15_R readGpiobModerMode15(GPIOB_MODER moder) {
+static GPIOB_MODER_MODE15_R readGpiobModerMode15(Register moder) {
     return (GPIOB_MODER_MODE15_R) ( (moder >> 30) & 0b11 );
 }
 static GPIOB_MODER_MODE14_R readGpiobModerMode14(GPIOB_MODER moder) {
@@ -92,7 +92,7 @@ static GPIOB_MODER_R gpiob_moder_r = {
 //     };
 // }
 
-GPIOB_MODER_R* readGpiobModer() {
+GPIOB_MODER_R* gpiobModerReader() {
     return &gpiob_moder_r;
 }
 

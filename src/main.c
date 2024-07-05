@@ -22,9 +22,10 @@ uint32_t systick_ovf_per_sec;
 
 int main(void) {
     Peripherals* p = takePeripherals();
-    GPIOB* const gpiob = p->GPIOB;
+    GPIOB* gpiob = &p->GPIOB;
     // gpiob->moder->write()->mode15(gpiob->moder)
     // gpiob->moder->read()->mode15(gpiob->moder);
+    gpiob->moder.read()->mode15().bits();
     readGpiobModer()->mode15(gpiob->moder);
     writeGpiobModer()->mode15(gpiob->moder).input();
     // writeGpiobModer()
