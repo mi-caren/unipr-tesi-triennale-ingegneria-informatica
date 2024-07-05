@@ -35,6 +35,80 @@ struct gpio {
     volatile uint32_t BRR;
 };
 
+typedef struct gpio GpioX;
+typedef GpioX GpioA;
+typedef GpioX GpioB;
+
+typedef enum GpioPort {
+    PortA,
+    PortB,
+    PortC,
+    PortH,
+} GpioPort;
+
+typedef enum PortXPin {
+    Pin0,
+    Pin1,
+    Pin2,
+    Pin3,
+    Pin4,
+    Pin5,
+    Pin6,
+    Pin7,
+    Pin8,
+    Pin9,
+    Pin10,
+    Pin11,
+    Pin12,
+    Pin13,
+    Pin14,
+    Pin15,
+} PortXPin;
+
+typedef PortXPin PortAPin;
+typedef PortXPin PortBPin;
+
+typedef enum PinMode {
+    Input                = 0b00,
+    Output               = 0b01,
+    AlternateFunction    = 0b10,
+    Analog               = 0b11,
+} PinMode;
+
+typedef enum PinLevel {
+    Low,
+    High,
+} PinLevel;
+
+typedef struct OutputPin {
+    const GpioPort port;
+    const PortXPin pin;
+    PinLevel level;
+} OutputPin;
+
+typedef enum GpioRegister {
+    ModerX,
+} GpioRegister;
+
+typedef enum GpioXModerBit {
+    PortXMode0       = 0b11 << (0 * 2),
+    PortXMode1       = 1 << (1 * 2),
+    PortXMode2       = 1 << (2 * 2),
+    PortXMode3       = 1 << (3 * 2),
+    PortXMode4       = 1 << (4 * 2),
+    PortXMode5       = 1 << (5 * 2),
+    PortXMode6       = 1 << (6 * 2),
+    PortXMode7       = 1 << (7 * 2),
+    PortXMode8       = 1 << (8 * 2),
+    PortXMode9       = 1 << (9 * 2),
+    PortXMode10      = 1 << (10 * 2),
+    PortXMode11      = 1 << (11 * 2),
+    PortXMode12      = 1 << (12 * 2),
+    PortXMode13      = 1 << (13 * 2),
+    PortXMode14      = 1 << (14 * 2),
+    PortXMode15      = 1 << (15 * 2),
+} GpioXModerBit;
+
 enum {
     GPIO_MODE_INPUT,
     GPIO_MODE_OUTPUT,
@@ -106,6 +180,8 @@ enum {
 };
 
 int gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode);
+void gpioASetPinMode(GpioA* gpioa, PortAPin pin, PinMode mode);
+void gpioBSetPinMode(GpioB* gpiob, PortBPin pin, PinMode mode);
 
 int gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af);
 

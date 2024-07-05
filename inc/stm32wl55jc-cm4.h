@@ -16,7 +16,7 @@ typedef struct rcc Rcc;
 #define GPIOA_MEM_ADDR     (GpioA*) 0x48000000
 #define GPIOB_MEM_ADDR     (GpioB*) 0x48000400
 
-#define RCC_MEM_ADDR       (Rcc*)   0x58000000
+#define RCC_MEM_ADDR                0x58000000
 
 static bool gpioa_taken = false;
 static bool gpiob_taken = false;

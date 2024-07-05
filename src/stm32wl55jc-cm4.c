@@ -30,6 +30,15 @@ GpioB* takeGpioB(Rcc* rcc) {
     }
 }
 
+Rcc* getRcc() {
+    return (Rcc*) RCC_MEM_ADDR;
+}
+
+GpioB* getGpioB() {
+    Rcc* rcc = getRcc();
+}
+
+
 Rcc* takeRcc() {
     if (!rcc_taken) {
         rcc_taken = true;

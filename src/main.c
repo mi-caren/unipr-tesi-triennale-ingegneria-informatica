@@ -23,11 +23,14 @@ int main(void) {
     Rcc* rcc = takeRcc();
     GpioB* gpiob = takeGpioB(rcc);
 
+    // OutputPin led = takeOutputPin(PortB, Pin15);
 	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
     // Initialize LPUART to communicate with serial terminal
     uart_init(LPUART1, 115200);
+    // Uart uart = takeLpUart(115200);
     sdi12_init(USART1);
+    // Sdi12 sdi12 = takeSdi12(Usart1);
 
     // init SysTick
     systick_init(SYSTICK_OVF_PER_SEC);
