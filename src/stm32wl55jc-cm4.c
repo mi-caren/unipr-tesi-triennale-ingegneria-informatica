@@ -4,52 +4,21 @@
 
 #include "stm32wl55jc-cm4.h"
 
+static bool device_peripherals_taken = false;
 
-static void setRegisterBits(volatile uint32_t* reg, uint32_t bits) {
-    *reg |= bits;
-}
+static Peripherals device_peripherals = {
+    .GPIOB = (GPIOB* const) 0x48000400
+};
 
-GpioA* takeGpioA() {
-    if (!gpioa_taken) {
-        gpioa_taken = true;
-        return GPIOA_MEM_ADDR;
-    } else {
+Peripherals* takePeripherals() {
+    if (device_peripherals_taken) {
         return NULL;
-    }
-}
-
-GpioB* takeGpioB() {
-    if (!gpiob_taken) {
-        gpiob_taken = true;
-        return GPIOB_MEM_ADDR;
     } else {
-        return NULL;
+        return stealPeripherals();
     }
 }
 
-Rcc* takeRcc() {
-    if (!rcc_taken) {
-        rcc_taken = true;
-        return RCC_MEM_ADDR;
-    } else {
-        return NULL;
-    }
+Peripherals* stealPeripherals() {
+    device_peripherals_taken = true;
+    return &device_peripherals;
 }
-
-int rccSetRegisterBits(Rcc* rcc, RccRegister reg, uint32_t bits) {
-    switch (reg) {
-        case AHB2ENR:
-            if ((bits & ~(GPIOAEN | GPIOBEN | GPIOCEN | GPIOHEN)) != 0) {
-                return -1;
-            }
-            setRegisterBits(&rcc->AHB2ENR, bits);
-            break;
-    }
-    return 0;
-}
-
-
-// void unset_reg_bits(uint32_t* reg, uint32_t bits) {}
-// write_reg_bits()
-
-

@@ -1,10 +1,11 @@
 #include <stdint.h>
 
-#include "main.h"
-#include "gpio.h"
-#include "uart.h"
-#include "utils.h"
-#include "sdi12.h"
+// #include "main.h"
+// #include "gpio.h"
+// #include "uart.h"
+// #include "utils.h"
+// #include "sdi12.h"
+#include "gpiob-moder.h"
 #include "stm32wl55jc-cm4.h"
 
 
@@ -20,62 +21,67 @@ uint32_t systick_ovf_per_sec;
 
 
 int main(void) {
-    GpioB* gpiob = takeGpioB();
-    Rcc* rcc = takeRcc();
-    rccSetRegisterBits(rcc, AHB2ENR, GPIOBEN);
+    Peripherals* p = takePeripherals();
+    GPIOB* const gpiob = p->GPIOB;
+    // gpiob->moder->write()->mode15(gpiob->moder)
+    // gpiob->moder->read()->mode15(gpiob->moder);
+    readGpiobModer()->mode15(gpiob->moder);
+    writeGpiobModer()->mode15(gpiob->moder).input();
+    // writeGpiobModer()
+
     // rcc_gpio_ck_enable(RCC_AHB2ENR_BIT_GPIOBEN);
-	gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
+	// gpio_set_mode(GPIOB, GPIO_PIN_15, GPIO_MODE_OUTPUT);
 
-    // Initialize LPUART to communicate with serial terminal
-    uart_init(LPUART1, 115200);
-    sdi12_init(USART1);
+ //    // Initialize LPUART to communicate with serial terminal
+ //    uart_init(LPUART1, 115200);
+ //    sdi12_init(USART1);
 
-    // init SysTick
-    systick_init(SYSTICK_OVF_PER_SEC);
+ //    // init SysTick
+ //    systick_init(SYSTICK_OVF_PER_SEC);
 
-    // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
-    cpu_timers_clean();
-    struct CpuTimer *cpu_timer_blink = cpu_timer_new(1000);
-    struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(10000);
+ //    // ensure timers_count = 0 to avoid memory leaks when resetting the MCU
+ //    cpu_timers_clean();
+ //    struct CpuTimer *cpu_timer_blink = cpu_timer_new(1000);
+ //    struct CpuTimer *cpu_timer_sdi12_wake_up = cpu_timer_new(10000);
 
-    uart_write_buf(LPUART1, "\n\r");
-    uart_write_buf(LPUART1, "App start");
-    uart_write_buf(LPUART1, "\n\r");
+ //    uart_write_buf(LPUART1, "\n\r");
+ //    uart_write_buf(LPUART1, "App start");
+ //    uart_write_buf(LPUART1, "\n\r");
 
-    #ifdef DEBUG
-        gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
-        gpio_set_mode(GPIOB, GPIO_PIN_4, GPIO_MODE_OUTPUT);
-    #endif
+ //    #ifdef DEBUG
+ //        gpio_set_mode(GPIOB, GPIO_PIN_2, GPIO_MODE_OUTPUT);
+ //        gpio_set_mode(GPIOB, GPIO_PIN_4, GPIO_MODE_OUTPUT);
+ //    #endif
 
     while (1) {
-        if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
-            uint8_t sensor_address = 1;
-            struct Float values[SDI12_MAX_MEASUREMENTS];
-            uint8_t values_count;
-            uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
-            if (err != SDI12_GET_MEASUREMENT_OK) {
-                app_log("(SDI12_ERR_GET_MEASUREMENT %d) Error while getting measurements from sensor %d", (int[]){err, sensor_address});
-                continue;
-            }
+        // if (cpu_timer_wait(cpu_timer_sdi12_wake_up)) {
+        //     uint8_t sensor_address = 1;
+        //     struct Float values[SDI12_MAX_MEASUREMENTS];
+        //     uint8_t values_count;
+        //     uint8_t err = sdi12_get_measurement(USART1, sensor_address, values, &values_count);
+        //     if (err != SDI12_GET_MEASUREMENT_OK) {
+        //         app_log("(SDI12_ERR_GET_MEASUREMENT %d) Error while getting measurements from sensor %d", (int[]){err, sensor_address});
+        //         continue;
+        //     }
 
-            app_log("Received Values:", (int[]){});
-            // 0: ElectricalConductivity
-            // 1: Temperature
-            // 2: VolumetricWaterContent
-            // TTN test: 01 | 02 C9 FD 02 | 00 01 1A 01 | 00 00 00 00
-            for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
-                app_log("%d: %d.%d", (int[]){
-                    values_idx,
-                    values[values_idx].value / power(10, values[values_idx].decimal_count),
-                    values[values_idx].value % power(10, values[values_idx].decimal_count) });
-            }
-            uart_write_byte(LPUART1, '\n');
-        }
+        //     app_log("Received Values:", (int[]){});
+        //     // 0: ElectricalConductivity
+        //     // 1: Temperature
+        //     // 2: VolumetricWaterContent
+        //     // TTN test: 01 | 02 C9 FD 02 | 00 01 1A 01 | 00 00 00 00
+        //     for (uint8_t values_idx = 0; values_idx < values_count; values_idx++) {
+        //         app_log("%d: %d.%d", (int[]){
+        //             values_idx,
+        //             values[values_idx].value / power(10, values[values_idx].decimal_count),
+        //             values[values_idx].value % power(10, values[values_idx].decimal_count) });
+        //     }
+        //     uart_write_byte(LPUART1, '\n');
+        // }
 
-        // blink blue LED
-        if (cpu_timer_wait(cpu_timer_blink)) {
-            gpio_write(GPIOB, GPIO_PIN_15, !gpio_read(GPIOB, GPIO_PIN_15));
-        }
+        // // blink blue LED
+        // if (cpu_timer_wait(cpu_timer_blink)) {
+        //     gpio_write(GPIOB, GPIO_PIN_15, !gpio_read(GPIOB, GPIO_PIN_15));
+        // }
     }
 
     return 0;
